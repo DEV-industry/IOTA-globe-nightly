@@ -2,29 +2,161 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Base ─────────────────────────────────────────── */
-* { box-sizing: border-box; }
-html, body, #root { height: 100%; margin: 0; padding: 0; }
-body { overflow: hidden; }
+/* ── Base resets ─────────────────────────────────────────────── */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 
-/* ─── Scrollbar ────────────────────────────────────── */
-.scrollbar-thin::-webkit-scrollbar { width: 4px; }
-.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background: rgba(136, 136, 170, 0.3);
-  border-radius: 9999px;
-}
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: rgba(136, 136, 170, 0.5);
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #0a0a0f;
+    color: #e2e8f0;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(136, 136, 170, 0.3);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(136, 136, 170, 0.5);
+  }
 }
 
-/* ─── Globe tooltip override ───────────────────────── */
-.scene-tooltip {
-  pointer-events: none !important;
-  z-index: 100 !important;
+/* ── Custom components ──────────────────────────────────────── */
+@layer components {
+  /* Glassmorphic panel */
+  .glass-panel {
+    background: rgba(18, 18, 26, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 1rem;
+  }
+
+  /* Dashboard card */
+  .dashboard-card {
+    background: rgba(18, 18, 26, 0.45);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(30, 30, 46, 0.8);
+    border-radius: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+  }
+  .dashboard-card:hover {
+    border-color: rgba(0, 194, 255, 0.2);
+    box-shadow: 0 0 24px rgba(0, 194, 255, 0.06);
+    transform: translateY(-2px);
+  }
+
+  /* Stat value glow */
+  .stat-value {
+    background: linear-gradient(135deg, #00c2ff 0%, #7b61ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Pulse dot for live status */
+  .pulse-dot {
+    position: relative;
+  }
+  .pulse-dot::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: rgba(52, 211, 153, 0.3);
+    animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Nav link hover underline */
+  .nav-link {
+    position: relative;
+    transition: color 0.2s ease;
+  }
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    width: 0;
+    height: 1.5px;
+    background: #00c2ff;
+    transition: width 0.25s ease, left 0.25s ease;
+  }
+  .nav-link:hover::after {
+    width: 100%;
+    left: 0;
+  }
+  .nav-link:hover {
+    color: #00c2ff;
+  }
 }
 
-/* ─── Globe canvas ─────────────────────────────────── */
-.scene-container canvas {
-  outline: none !important;
+/* ── Animations ─────────────────────────────────────────────── */
+@keyframes pulse-ring {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0;
+    transform: scale(1.8);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in-up {
+    animation: fade-in-up 0.6s ease-out both;
+  }
+  .animation-delay-100 {
+    animation-delay: 0.1s;
+  }
+  .animation-delay-200 {
+    animation-delay: 0.2s;
+  }
+  .animation-delay-300 {
+    animation-delay: 0.3s;
+  }
+  .animation-delay-400 {
+    animation-delay: 0.4s;
+  }
 }
