@@ -18,11 +18,7 @@ function formatDigest(digest: string) {
   return `${digest.slice(0, 4)}...${digest.slice(-2)}`;
 }
 
-interface TransactionBlocksCardProps {
-  epoch?: string;
-}
-
-export function TransactionBlocksCard({ epoch }: TransactionBlocksCardProps) {
+export function TransactionBlocksCard() {
   const { checkpoints, isLoading, isError } = useCheckpoints();
   const { validators } = useValidators();
 
