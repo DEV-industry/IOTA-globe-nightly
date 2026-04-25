@@ -14,8 +14,7 @@ import { useGeocode } from '../../hooks/useGeocode';
 import { getStakeTier, getTierColor, getTierRadius, getTierAltitude } from '../../utils/formatters';
 import type { Validator, ValidatorWithGeo } from '../../types';
 
-// Dark muted topology texture for the globe
-const GLOBE_IMAGE = 'https://unpkg.com/three-globe@2.41.12/example/img/earth-topology.png';
+
 
 interface GlobeSceneProps {
   validators: Validator[];
@@ -56,7 +55,7 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator }: G
       globe.pointOfView({ lat: 0, lng: 0, altitude: 2.2 }, 1000);
 
       try {
-        const material = globe.globeMaterial();
+        const material = (globe as any).globeMaterial();
         if (material && material.color) {
           material.color.set('#050609');
         }
@@ -168,7 +167,6 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator }: G
             hexPolygonResolution={3}
             hexPolygonMargin={0.7} // High margin turns them into dots
             hexPolygonColor={() => '#d5d7daff'} // User requested continent color
-            hexPolygonUse3D={false}
 
             // Configure Arcs (GitHub style connecting lines)
             arcsData={arcsData}
