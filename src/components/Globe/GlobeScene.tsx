@@ -56,7 +56,7 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator }: G
       if (!globe) return;
 
       // Make the globe appear larger by zooming in (altitude 1.2)
-      globe.pointOfView({ lat: 0, lng: 0, altitude: 2.2 }, 1000);
+      globe.pointOfView({ lat: 40, lng: 0, altitude: 1.5 }, 2500);
 
       try {
         const material = (globe as any).globeMaterial();
@@ -230,7 +230,7 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator }: G
             globeImageUrl={undefined}
             backgroundColor="rgba(0,0,0,0)"
             atmosphereColor="#b4fffa" // Use 6-character hex (Three.js doesn't support 8-character hex well)
-            atmosphereAltitude={0.15}
+            atmosphereAltitude={0.1}
             animateIn={true}
 
             // Configure Hex Polygons (Dot matrix look)
@@ -266,9 +266,9 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator }: G
             }}
             ringPropagationSpeed={1.2}
             ringRepeatPeriod={(d: object) => {
-               const v = d as ValidatorWithGeo;
-               const tier = getStakeTier(v, validators);
-               return tier === 'top' ? 800 : tier === 'mid' ? 1200 : 1600;
+              const v = d as ValidatorWithGeo;
+              const tier = getStakeTier(v, validators);
+              return tier === 'top' ? 800 : tier === 'mid' ? 1200 : 1600;
             }}
 
             // Points layer (Flat dots)

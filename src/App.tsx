@@ -45,7 +45,7 @@ function AppContent() {
   }
 
   return (
-    <div className="min-h-screen bg-iota-bg text-white relative">
+    <div className="min-h-screen bg-[#000] text-white relative">
       <StarsBackground />
       <Header />
 
