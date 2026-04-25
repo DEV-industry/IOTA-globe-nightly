@@ -59,7 +59,7 @@ export function TransactionBlocksCard({ epoch }: TransactionBlocksCardProps) {
   );
 
   return (
-    <div className="bg-iota-card/80 backdrop-blur-sm border border-iota-border rounded-2xl p-6 animate-fade-in">
+    <div className="bg-iota-card backdrop-blur-sm rounded-2xl p-6 animate-fade-in">
       {/* Card Title */}
       <h4 className="text-sm font-medium text-iota-label mb-4 flex items-center gap-2">
         <svg

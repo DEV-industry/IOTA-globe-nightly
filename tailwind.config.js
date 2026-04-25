@@ -6,7 +6,7 @@ export default {
       colors: {
         iota: {
           bg: '#050609',
-          card: '#111827',
+          card: '#0F141C',
           border: '#1f2937',
           text: '#ffffff',
           label: '#94a3b8',
