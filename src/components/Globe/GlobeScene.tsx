@@ -11,8 +11,8 @@ import { useGeocode } from '../../hooks/useGeocode';
 import { getStakeTier, getTierColor, getTierRadius, getTierAltitude } from '../../utils/formatters';
 import type { Validator, ValidatorWithGeo } from '../../types';
 
-const GLOBE_IMAGE = 'https://raw.githubusercontent.com/vasturiano/react-globe.gl/master/example/assets/earth-dark.jpg';
-const NIGHT_SKY = 'https://raw.githubusercontent.com/vasturiano/react-globe.gl/master/example/assets/night-sky.png';
+const GLOBE_IMAGE = 'https://raw.githubusercontent.com/vasturiano/three-globe/master/example/img/earth-dark.jpg';
+const NIGHT_SKY = 'https://raw.githubusercontent.com/vasturiano/three-globe/master/example/img/night-sky.png';
 
 interface GlobeSceneProps {
   validators: Validator[];
