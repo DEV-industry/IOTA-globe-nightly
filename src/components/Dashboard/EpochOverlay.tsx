@@ -30,8 +30,8 @@ export function EpochOverlay({
       href={`https://explorer.iota.org/epoch/${epoch}`}
       target="_blank"
       rel="noopener noreferrer"
-      className="block bg-iota-bg/90 backdrop-blur-md border border-iota-border rounded-xl p-4
-                 hover:border-iota-blue/30 transition-colors cursor-pointer group animate-slide-up"
+      className="block bg-iota-bg/90 backdrop-blur-md rounded-xl p-4
+                 transition-colors cursor-pointer group animate-slide-up"
     >
       <div className="flex items-center justify-between mb-2">
         <span className="text-sm font-semibold text-white group-hover:text-iota-cyan transition-colors">

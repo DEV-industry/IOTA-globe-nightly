@@ -98,6 +98,38 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator }: G
     setAutoRotate(true);
   }, []);
 
+  // Hex polygons data
+  const [hexData, setHexData] = useState<any[]>([]);
+  // Arcs data for GitHub style
+  const [arcsData, setArcsData] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('https://raw.githubusercontent.com/vasturiano/react-globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson')
+      .then(res => res.json())
+      .then(data => setHexData(data.features));
+  }, []);
+
+  // Generate random connecting arcs
+  useEffect(() => {
+    if (geoValidators.length < 2) return;
+    const arcs = [];
+    for (let i = 0; i < 25; i++) {
+      const start = geoValidators[Math.floor(Math.random() * geoValidators.length)];
+      const end = geoValidators[Math.floor(Math.random() * geoValidators.length)];
+      if (start && end && start !== end) {
+        arcs.push({
+          startLat: start.lat,
+          startLng: start.lng,
+          endLat: end.lat,
+          endLng: end.lng,
+          // Gradient arc color
+          color: ['rgba(6, 182, 212, 0.1)', 'rgba(59, 130, 246, 0.9)']
+        });
+      }
+    }
+    setArcsData(arcs);
+  }, [geoValidators]);
+
   return (
     <div ref={containerRef} className="relative w-full h-full overflow-hidden bg-transparent">
       {dimensions.width > 0 && (
@@ -105,11 +137,28 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator }: G
           ref={globeRef}
           width={dimensions.width}
           height={dimensions.height}
-          globeImageUrl={GLOBE_IMAGE}
+          globeImageUrl="//unpkg.com/three-globe/example/img/earth-water.png"
           backgroundColor="rgba(0,0,0,0)"
-          atmosphereColor="#3b82f6"
-          atmosphereAltitude={0.1}
+          atmosphereColor="#ffffff"
+          atmosphereAltitude={0.15}
           animateIn={true}
+          
+          // Configure Hex Polygons (Dot matrix look)
+          hexPolygonsData={hexData}
+          hexPolygonResolution={3}
+          hexPolygonMargin={0.7} // High margin turns them into dots
+          hexPolygonColor={() => 'rgba(255, 255, 255, 0.4)'}
+          hexPolygonUse3D={false}
+          
+          // Configure Arcs (GitHub style connecting lines)
+          arcsData={arcsData}
+          arcColor="color"
+          arcDashLength={0.4}
+          arcDashGap={4}
+          arcDashInitialGap={() => Math.random() * 5}
+          arcDashAnimateTime={2000}
+          arcAltitudeAutoScale={0.3}
+          
           // Auto-rotate
           enablePointerInteraction={true}
           // Points layer
@@ -119,7 +168,7 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator }: G
           pointColor={(d: object) => {
             const v = d as ValidatorWithGeo;
             const tier = getStakeTier(v, validators);
-            return v.iotaAddress === selectedAddress ? '#ffdd00' : getTierColor(tier);
+            return v.iotaAddress === selectedAddress ? '#ffffff' : getTierColor(tier);
           }}
           pointRadius={(d: object) => {
             const v = d as ValidatorWithGeo;

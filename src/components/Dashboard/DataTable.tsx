@@ -31,7 +31,7 @@ export function DataTable({ validators }: DataTableProps) {
   ];
 
   return (
-    <div className="bg-iota-card/80 backdrop-blur-sm border border-iota-border rounded-2xl animate-slide-up">
+    <div className="bg-iota-card backdrop-blur-sm rounded-2xl animate-slide-up">
       {/* Tab Bar */}
       <div className="flex items-center justify-between border-b border-iota-border px-6">
         <div className="flex">
