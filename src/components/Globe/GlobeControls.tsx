@@ -20,7 +20,7 @@ export function GlobeControls({
   return (
     <div
       id="globe-controls"
-      className="absolute bottom-6 right-6 flex flex-col gap-1.5 z-10"
+      className="absolute bottom-4 right-4 flex flex-col gap-1.5 z-10"
     >
       <ControlButton
         onClick={onZoomIn}
@@ -85,7 +85,7 @@ function ControlButton({
         ${
           active
             ? 'bg-iota-blue/20 border-iota-blue/40 text-iota-blue'
-            : 'bg-iota-dark/60 border-iota-border/50 text-iota-muted hover:text-white hover:border-iota-blue/30'
+            : 'bg-iota-bg/60 border-iota-border/50 text-iota-muted hover:text-white hover:border-iota-blue/30'
         }
       `}
     >

@@ -56,10 +56,10 @@ export class ErrorBoundary extends Component<Props, State> {
               />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold text-iota-text">
+          <h3 className="text-lg font-semibold text-white">
             Something went wrong
           </h3>
-          <p className="text-sm text-iota-muted max-w-sm">
+          <p className="text-sm text-iota-label max-w-sm">
             {this.state.error?.message || 'An unexpected error occurred.'}
           </p>
           <button

@@ -1,15 +1,23 @@
 /**
- * App — root layout composing StatsBar, Sidebar, and Globe.
+ * App — root layout composing the IOTA Explorer Dashboard.
+ *
+ * Structure:
+ *  - Fixed Header (logo, search, network selector)
+ *  - Hero Globe (top full-width visualization)
+ *  - Dashboard grid: NetworkActivity + overlays, TransactionBlocks
+ *  - Data Table with tabbed navigation
  */
 
-import { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { StatsBar } from './components/Stats/StatsBar';
-import { ValidatorList } from './components/Sidebar/ValidatorList';
-import { GlobeScene } from './components/Globe/GlobeScene';
+import { Header } from './components/Dashboard/Header';
+import { NetworkActivityCard } from './components/Dashboard/NetworkActivityCard';
+import { TransactionBlocksCard } from './components/Dashboard/TransactionBlocksCard';
+import { HeroGlobe } from './components/Dashboard/HeroGlobe';
+import { EpochOverlay } from './components/Dashboard/EpochOverlay';
+import { PriceOverlay } from './components/Dashboard/PriceOverlay';
+import { DataTable } from './components/Dashboard/DataTable';
 import { ErrorBoundary } from './components/UI/ErrorBoundary';
 import { useValidators } from './hooks/useValidators';
-import type { Validator } from './types';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -20,43 +28,52 @@ const queryClient = new QueryClient({
 });
 
 function AppContent() {
-  const { validators, isLoading } = useValidators();
-  const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
-
-  const handleSelectValidator = (validator: Validator) => {
-    setSelectedAddress(
-      validator.iotaAddress === selectedAddress ? null : validator.iotaAddress,
-    );
-  };
+  const {
+    validators,
+    epoch,
+    totalStake,
+    iotaTotalSupply,
+    activeValidatorCount,
+    data,
+  } = useValidators();
 
   return (
-    <div className="h-screen flex flex-col">
-      {/* Top stats bar */}
-      <StatsBar />
+    <div className="min-h-screen bg-iota-bg text-white">
+      <Header />
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col lg:flex-row pt-14">
-        {/* Sidebar (validator list) */}
-        <aside className="w-full lg:w-[360px] xl:w-[400px] h-[40vh] lg:h-full border-b lg:border-b-0 lg:border-r border-iota-border bg-iota-dark/80 backdrop-blur-sm shrink-0 flex flex-col">
-          <ValidatorList
-            validators={validators}
-            isLoading={isLoading}
-            selectedAddress={selectedAddress}
-            onSelectValidator={handleSelectValidator}
-          />
-        </aside>
-
-        {/* Globe */}
-        <main className="flex-1 min-h-0 bg-iota-dark">
+      <main className="max-w-[1400px] mx-auto px-4 lg:px-8 pt-20 pb-8">
+        {/* ─── Top Globe Section ──────────────────────────── */}
+        <div className="mb-8 w-full -mx-4 px-4 lg:mx-0 lg:px-0">
           <ErrorBoundary>
-            <GlobeScene
-              validators={validators}
-              selectedAddress={selectedAddress}
-              onSelectValidator={handleSelectValidator}
-            />
+            <HeroGlobe validators={validators} />
           </ErrorBoundary>
-        </main>
-      </div>
+        </div>
+
+        {/* ─── Dashboard Cards Grid ─────────────────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+          {/* Column 1: Network Activity + Overlays */}
+          <div className="flex flex-col gap-3">
+            <NetworkActivityCard
+              activeValidatorCount={activeValidatorCount}
+              totalStake={totalStake}
+              iotaTotalSupply={iotaTotalSupply}
+              referenceGasPrice={data?.referenceGasPrice}
+            />
+            <EpochOverlay
+              epoch={epoch}
+              epochStartTimestampMs={data?.epochStartTimestampMs}
+              epochDurationMs={data?.epochDurationMs}
+            />
+            <PriceOverlay />
+          </div>
+
+          {/* Column 2: Transaction Blocks */}
+          <TransactionBlocksCard epoch={epoch} />
+        </div>
+
+        {/* ─── Data Table Section ───────────────────────────── */}
+        <DataTable validators={validators} />
+      </main>
     </div>
   );
 }

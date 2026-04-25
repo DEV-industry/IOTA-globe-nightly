@@ -1,5 +1,8 @@
 /**
  * GlobeScene — main react-globe.gl component with validator points.
+ *
+ * Adapted for card-embedded rendering with a dark muted globe texture
+ * and transparent background to blend with the dashboard card.
  */
 
 import { useRef, useState, useCallback, useEffect } from 'react';
@@ -11,8 +14,8 @@ import { useGeocode } from '../../hooks/useGeocode';
 import { getStakeTier, getTierColor, getTierRadius, getTierAltitude } from '../../utils/formatters';
 import type { Validator, ValidatorWithGeo } from '../../types';
 
-const GLOBE_IMAGE = 'https://raw.githubusercontent.com/vasturiano/react-globe.gl/master/example/assets/earth-dark.jpg';
-const NIGHT_SKY = 'https://raw.githubusercontent.com/vasturiano/react-globe.gl/master/example/assets/night-sky.png';
+// Dark muted topology texture for the globe
+const GLOBE_IMAGE = 'https://unpkg.com/three-globe@2.41.12/example/img/earth-topology.png';
 
 interface GlobeSceneProps {
   validators: Validator[];
@@ -96,16 +99,16 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator }: G
   }, []);
 
   return (
-    <div ref={containerRef} className="relative w-full h-full overflow-hidden">
+    <div ref={containerRef} className="relative w-full h-full overflow-hidden bg-transparent">
       {dimensions.width > 0 && (
         <Globe
           ref={globeRef}
           width={dimensions.width}
           height={dimensions.height}
           globeImageUrl={GLOBE_IMAGE}
-          backgroundImageUrl={NIGHT_SKY}
-          atmosphereColor="#00c2ff"
-          atmosphereAltitude={0.15}
+          backgroundColor="rgba(0,0,0,0)"
+          atmosphereColor="#3b82f6"
+          atmosphereAltitude={0.1}
           animateIn={true}
           // Auto-rotate
           enablePointerInteraction={true}
@@ -147,11 +150,6 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator }: G
         onZoomOut={handleZoomOut}
         onResetView={handleReset}
       />
-
-      {/* Validator count badge */}
-      <div className="absolute top-4 left-4 z-10 px-3 py-1.5 rounded-full bg-iota-dark/60 backdrop-blur-md border border-iota-border/50 text-xs text-iota-muted">
-        <span className="text-white font-medium">{geoValidators.length}</span> validators on globe
-      </div>
     </div>
   );
 }

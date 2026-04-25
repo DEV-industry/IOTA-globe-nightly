@@ -5,12 +5,15 @@ export default {
     extend: {
       colors: {
         iota: {
-          blue: '#00c2ff',
-          dark: '#0a0a0f',
-          card: '#12121a',
-          border: '#1e1e2e',
-          text: '#e2e8f0',
-          muted: '#8888aa',
+          bg: '#050609',
+          card: '#111827',
+          border: '#1f2937',
+          text: '#ffffff',
+          label: '#94a3b8',
+          muted: '#64748b',
+          blue: '#3b82f6',
+          cyan: '#06b6d4',
+          hover: '#1e293b',
         },
       },
       fontFamily: {
@@ -20,6 +23,18 @@ export default {
       animation: {
         pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'spin-slow': 'spin 3s linear infinite',
+        'fade-in': 'fadeIn 0.5s ease-out',
+        'slide-up': 'slideUp 0.4s ease-out',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        slideUp: {
+          '0%': { opacity: '0', transform: 'translateY(12px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
       },
     },
   },
