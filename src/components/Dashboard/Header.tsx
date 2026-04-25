@@ -13,7 +13,7 @@ export function Header() {
   return (
     <header
       id="explorer-header"
-      className="fixed top-0 left-0 right-0 z-50 bg-iota-bg/80 backdrop-blur-xl border-b border-iota-border"
+      className="fixed top-0 left-0 right-0 z-50 bg-[#000]/80 backdrop-blur-xl border-b border-iota-border"
     >
       <div className="flex items-center justify-between px-4 lg:px-6 h-16 max-w-[1600px] mx-auto">
         {/* Logo */}
