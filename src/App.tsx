@@ -43,14 +43,14 @@ function AppContent() {
 
       <main className="max-w-[1400px] mx-auto px-4 lg:px-8 pt-20 pb-8">
         {/* ─── Top Globe Section ──────────────────────────── */}
-        <div className="mb-8 w-full -mx-4 px-4 lg:mx-0 lg:px-0">
+        <div className=" w-full -mx-4 px-4 lg:mx-0 lg:px-0">
           <ErrorBoundary>
             <HeroGlobe validators={validators} />
           </ErrorBoundary>
         </div>
 
         {/* ─── Dashboard Cards Grid ─────────────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 max-w-5xl mx-auto gap-4 mb-6 -mt-[5vh]">
           {/* Column 1: Network Activity + Overlays */}
           <div className="flex flex-col gap-3">
             <NetworkActivityCard

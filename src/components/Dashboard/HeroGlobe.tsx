@@ -22,7 +22,7 @@ export function HeroGlobe({ validators }: HeroGlobeProps) {
   };
 
   return (
-    <div className="w-full relative animate-fade-in h-[400px] lg:h-[500px]">
+    <div className="w-full relative animate-fade-in h-[70vh]">
       <GlobeScene
         validators={validators}
         selectedAddress={selectedAddress}

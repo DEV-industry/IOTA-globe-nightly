@@ -25,7 +25,7 @@ function MetricItem({ label, value, hasTooltip }: MetricItemProps) {
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center gap-1.5">
-        <span className="text-2xl font-semibold text-white tabular-nums">
+        <span className="text-xl font-semibold text-white tabular-nums">
           {value}
         </span>
         {hasTooltip && (
@@ -52,9 +52,9 @@ export function NetworkActivityCard({
     : '—';
 
   return (
-    <div className="bg-iota-card backdrop-blur-sm rounded-2xl p-6 animate-fade-in">
+    <div className="bg-iota-card backdrop-blur-sm rounded-2xl p-4 animate-fade-in">
       {/* Card Title */}
-      <h4 className="text-sm font-medium text-iota-label mb-5 flex items-center gap-2">
+      <h4 className="text-sm font-medium text-iota-label mb-4 flex items-center gap-2">
         <svg
           className="w-4 h-4 text-iota-cyan"
           fill="none"
@@ -72,7 +72,7 @@ export function NetworkActivityCard({
       </h4>
 
       {/* Metrics Grid */}
-      <div className="grid grid-cols-3 gap-x-6 gap-y-5">
+      <div className="grid grid-cols-3 gap-x-4 gap-y-4">
         <MetricItem
           label="TPS Now"
           value={String(activeValidatorCount)}
