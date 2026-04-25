@@ -72,3 +72,21 @@ export interface TransactionRow {
 // ─── Tab types for the data table ───────────────────────────────
 
 export type DataTableTab = 'transactions' | 'epochs' | 'checkpoints';
+
+// ─── Checkpoints ────────────────────────────────────────────────
+
+export interface Checkpoint {
+  epoch: string;
+  sequenceNumber: string;
+  digest: string;
+  networkTotalTransactions: string;
+  previousDigest: string;
+  timestampMs: string;
+  transactions?: string[];
+}
+
+export interface CheckpointsResponse {
+  data: Checkpoint[];
+  nextCursor: string | null;
+  hasNextPage: boolean;
+}

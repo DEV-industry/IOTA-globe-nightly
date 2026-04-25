@@ -55,17 +55,20 @@ function AppContent() {
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 max-w-5xl mx-auto gap-4 mb-6 -mt-[5vh]">
           {/* Column 1: Network Activity + Overlays */}
           <div className="flex flex-col gap-3">
+            <EpochOverlay
+              epoch={epoch}
+              epochStartTimestampMs={data?.epochStartTimestampMs}
+              epochDurationMs={data?.epochDurationMs}
+              validators={validators}
+            />
+
             <NetworkActivityCard
               activeValidatorCount={activeValidatorCount}
               totalStake={totalStake}
               iotaTotalSupply={iotaTotalSupply}
               referenceGasPrice={data?.referenceGasPrice}
             />
-            <EpochOverlay
-              epoch={epoch}
-              epochStartTimestampMs={data?.epochStartTimestampMs}
-              epochDurationMs={data?.epochDurationMs}
-            />
+
             <PriceOverlay />
           </div>
 
