@@ -45,17 +45,30 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator }: G
   useEffect(() => {
     const globe = globeRef.current;
     if (!globe) return;
-    const controls = globe.controls();
+    
+    // Set initial camera position so the globe is centered and visible!
+    globe.pointOfView({ lat: 20, lng: 0, altitude: 2.5 });
+
+    const controls = globe.controls() as any;
     if (controls) {
       controls.enableDamping = true;
       controls.dampingFactor = 0.15;
       controls.rotateSpeed = 0.4;
       controls.zoomSpeed = 0.8;
-      controls.minDistance = 150;
+      controls.minDistance = 120;
       controls.maxDistance = 500;
       controls.addEventListener('start', () => setAutoRotate(false));
     }
   }, []);
+
+  // Sync autoRotate state with controls
+  useEffect(() => {
+    const controls = globeRef.current?.controls() as any;
+    if (controls) {
+      controls.autoRotate = autoRotate;
+      controls.autoRotateSpeed = 0.6;
+    }
+  }, [autoRotate]);
 
   // Fly to selected validator
   useEffect(() => {
