@@ -26,6 +26,10 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator }: G
   const globeRef = useRef<GlobeMethods | undefined>(undefined);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
+  const interactionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isHoveringPointRef = useRef(false);
+  const dragStartPosRef = useRef({ x: 0, y: 0 });
+  const wasDragRef = useRef(false);
 
   // Geocode validators
   const geoValidators = useGeocode(validators);
@@ -73,6 +77,31 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator }: G
         // Apply auto rotation permanently
         controls.autoRotate = true;
         controls.autoRotateSpeed = -2.5; // Negative value rotates to the right
+
+        // Stop auto-rotate when interacting, resume after delay when interaction ends
+        controls.addEventListener('start', () => {
+          controls.autoRotate = false;
+          if (interactionTimerRef.current) {
+            clearTimeout(interactionTimerRef.current);
+          }
+        });
+
+        controls.addEventListener('end', () => {
+          if (interactionTimerRef.current) {
+            clearTimeout(interactionTimerRef.current);
+          }
+          if (!isHoveringPointRef.current) {
+            if (wasDragRef.current) {
+              interactionTimerRef.current = setTimeout(() => {
+                controls.autoRotate = true;
+              }, 2000);
+            } else {
+              // Just a click, resume immediately
+              controls.autoRotate = true;
+            }
+          }
+          wasDragRef.current = false;
+        });
       }
     }, 100);
 
@@ -96,6 +125,31 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator }: G
     },
     [onSelectValidator],
   );
+
+  const handlePointHover = useCallback((point: object | null) => {
+    isHoveringPointRef.current = !!point;
+    
+    const globe = globeRef.current;
+    if (!globe) return;
+    const controls = globe.controls();
+    if (!controls) return;
+
+    if (point) {
+      // Hovering a point: pause rotation and clear timers
+      controls.autoRotate = false;
+      if (interactionTimerRef.current) {
+        clearTimeout(interactionTimerRef.current);
+      }
+    } else {
+      // Left a point: start resume timer
+      if (interactionTimerRef.current) {
+        clearTimeout(interactionTimerRef.current);
+      }
+      interactionTimerRef.current = setTimeout(() => {
+        controls.autoRotate = true;
+      }, 2000);
+    }
+  }, []);
 
   const handleZoomIn = useCallback(() => {
     const globe = globeRef.current;
@@ -148,7 +202,24 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator }: G
   }, [geoValidators]);
 
   return (
-    <div ref={containerRef} className="relative w-full h-full overflow-hidden bg-transparent">
+    <div 
+      ref={containerRef} 
+      className="relative w-full h-full overflow-hidden bg-transparent"
+      onPointerDown={(e) => {
+        dragStartPosRef.current = { x: e.clientX, y: e.clientY };
+        wasDragRef.current = false;
+      }}
+      onPointerUp={(e) => {
+        const dx = e.clientX - dragStartPosRef.current.x;
+        const dy = e.clientY - dragStartPosRef.current.y;
+        if (Math.sqrt(dx * dx + dy * dy) > 5) {
+          wasDragRef.current = true;
+        }
+      }}
+      onWheel={() => {
+        wasDragRef.current = true;
+      }}
+    >
       {dimensions.width > 0 && (
         <div className="w-full h-full">
           <Globe
@@ -203,6 +274,7 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator }: G
               return getValidatorTooltipHtml(v, validators);
             }}
             onPointClick={handlePointClick}
+            onPointHover={handlePointHover}
             pointResolution={8}
             pointsMerge={false}
             pointsTransitionDuration={800}

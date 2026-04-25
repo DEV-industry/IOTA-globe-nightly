@@ -4,19 +4,54 @@
  * Strategy (in order):
  *  1. Known city/country in validator name → hardcoded lookup table
  *  2. Extract hostname from netAddress → geo API (via proxy)  [future]
- *  3. Fallback: deterministic position based on address hash
- *
- * For V1, we use strategy 1 + 3 (no external geo API calls).
- * This avoids rate limiting issues and keeps things fast.
+ *  3. Fallback: deterministic position based on address hash (snapped to known DC regions)
  */
 
 import { useMemo } from 'react';
 import type { Validator, ValidatorWithGeo } from '../types';
 
-// ─── Known locations (city/country → coords) ───────────────────
+// ─── Known locations (city/country/validator → coords) ──────────
 // Populated from common validator names and known infrastructure
 
 const KNOWN_LOCATIONS: Record<string, { lat: number; lng: number }> = {
+  // Top IOTA Validators
+  'kiln': { lat: 48.8566, lng: 2.3522 }, // Paris
+  'figment': { lat: 43.6532, lng: -79.3832 }, // Toronto
+  'dlt.green': { lat: 47.5162, lng: 14.5501 }, // Austria
+  'pandabyte': { lat: 50.1109, lng: 8.6821 }, // Frankfurt
+  'binance': { lat: 35.6762, lng: 139.6503 }, // Tokyo
+  'p2p validator': { lat: 35.1264, lng: 33.4299 }, // Cyprus
+  'luganodes': { lat: 46.0037, lng: 8.9511 }, // Lugano
+  'swissiota': { lat: 47.3769, lng: 8.5417 }, // Zurich
+  'nansen': { lat: 1.3521, lng: 103.8198 }, // Singapore
+  'iota 1': { lat: 52.5200, lng: 13.4050 }, // Berlin
+  'iota 2': { lat: 52.5200, lng: 13.4050 }, // Berlin
+  'iota 3': { lat: 52.5200, lng: 13.4050 }, // Berlin
+  'iota.guru': { lat: 51.1657, lng: 10.4515 }, // Germany
+  'ankr': { lat: 37.7749, lng: -122.4194 }, // San Francisco
+  'allnodes': { lat: 34.0522, lng: -118.2437 }, // Los Angeles
+  'twinstake': { lat: 51.5074, lng: -0.1278 }, // London
+  'dsrv': { lat: 37.5665, lng: 126.9780 }, // Seoul
+  'stakin': { lat: 59.4370, lng: 24.7536 }, // Tallinn
+  'nightly': { lat: 52.2297, lng: 21.0122 }, // Warsaw
+  'jednaosma': { lat: 52.2297, lng: 21.0122 }, // Warsaw
+  'linkpool': { lat: 51.5074, lng: -0.1278 }, // London
+  'cosmostation': { lat: 37.5665, lng: 126.9780 }, // Seoul
+  'alchemy': { lat: 37.7749, lng: -122.4194 }, // San Francisco
+  'sensei_node': { lat: -34.6037, lng: -58.3816 }, // Buenos Aires
+  'cryptech': { lat: 50.4501, lng: 30.5234 }, // Kyiv
+  'pier two': { lat: -33.8688, lng: 151.2093 }, // Sydney
+  'klever': { lat: -23.5505, lng: -46.6333 }, // Sao Paulo
+  'infstones': { lat: 37.4419, lng: -122.1430 }, // Palo Alto
+  'b-harvest': { lat: 37.5665, lng: 126.9780 }, // Seoul
+  'liquify': { lat: 22.3193, lng: 114.1694 }, // Hong Kong
+  'cetus': { lat: 1.3521, lng: 103.8198 }, // Singapore
+  'blockpi': { lat: 1.3521, lng: 103.8198 }, // Singapore
+  'hashkey': { lat: 22.3193, lng: 114.1694 }, // Hong Kong
+  'sentio': { lat: 37.7749, lng: -122.4194 }, // San Francisco
+  'meria': { lat: 48.8566, lng: 2.3522 }, // Paris
+  'cream': { lat: 25.0330, lng: 121.5654 }, // Taipei
+
   // Regions / Countries
   'us': { lat: 39.8, lng: -98.5 },
   'usa': { lat: 39.8, lng: -98.5 },
@@ -101,9 +136,27 @@ const KNOWN_LOCATIONS: Record<string, { lat: number; lng: number }> = {
   'vienna': { lat: 48.2, lng: 16.4 },
 };
 
+// Top data center regions globally for fallback to avoid ocean drops
+const FALLBACK_REGIONS = [
+  { lat: 39.0438, lng: -77.4874 }, // Ashburn, VA, USA (us-east)
+  { lat: 45.8153, lng: -119.3204 }, // Boardman, OR, USA (us-west)
+  { lat: 37.3382, lng: -121.8863 }, // San Jose, CA, USA
+  { lat: 53.3498, lng: -6.2603 }, // Dublin, Ireland (eu-west)
+  { lat: 50.1109, lng: 8.6821 }, // Frankfurt, Germany (eu-central)
+  { lat: 35.6895, lng: 139.6917 }, // Tokyo, Japan (ap-northeast)
+  { lat: 1.3521, lng: 103.8198 }, // Singapore (ap-southeast)
+  { lat: -33.8688, lng: 151.2093 }, // Sydney, Australia
+  { lat: -23.5505, lng: -46.6333 }, // Sao Paulo, Brazil
+  { lat: 19.0760, lng: 72.8777 }, // Mumbai, India
+  { lat: 37.5665, lng: 126.9780 }, // Seoul, South Korea
+  { lat: 43.6532, lng: -79.3832 }, // Toronto, Canada
+  { lat: 51.5074, lng: -0.1278 }, // London, UK
+];
+
 /**
  * Simple deterministic hash → lat/lng from the address string.
- * Spreads validators somewhat evenly across the globe.
+ * Uses a list of known data center regions instead of random coordinates
+ * to ensure validators land on solid ground (not in the ocean).
  */
 function hashToCoords(address: string): { lat: number; lng: number } {
   let hash = 0;
@@ -111,11 +164,18 @@ function hashToCoords(address: string): { lat: number; lng: number } {
     hash = (hash * 31 + address.charCodeAt(i)) & 0x7fffffff;
   }
 
-  // Use different parts of the hash for lat and lng
-  const lat = ((hash % 1200) / 1200) * 140 - 70; // -70 to +70
-  const lng = (((hash >> 10) % 3600) / 3600) * 360 - 180; // -180 to +180
+  // Pick a random data center region deterministically
+  const regionIndex = Math.abs(hash) % FALLBACK_REGIONS.length;
+  const region = FALLBACK_REGIONS[regionIndex]!;
 
-  return { lat, lng };
+  // Add jitter so nodes in the same region don't overlap completely
+  const jitterLat = ((hash % 100) / 100) * 4 - 2; // -2 to +2 degrees
+  const jitterLng = (((hash >> 8) % 100) / 100) * 4 - 2;
+
+  return {
+    lat: region.lat + jitterLat,
+    lng: region.lng + jitterLng
+  };
 }
 
 /**
@@ -136,10 +196,17 @@ function matchKnownLocation(
     if (searchText.includes(key)) {
       const coords = KNOWN_LOCATIONS[key];
       if (coords) {
-        // Add slight jitter so co-located validators don't stack
+        // Add deterministic jitter based on address so co-located validators don't stack
+        let hash = 0;
+        for (let i = 0; i < validator.iotaAddress.length; i++) {
+          hash = (hash * 31 + validator.iotaAddress.charCodeAt(i)) & 0x7fffffff;
+        }
+        const jitterLat = ((hash % 100) / 100) * 3 - 1.5;
+        const jitterLng = (((hash >> 8) % 100) / 100) * 3 - 1.5;
+
         return {
-          lat: coords.lat + (Math.random() - 0.5) * 3,
-          lng: coords.lng + (Math.random() - 0.5) * 3,
+          lat: coords.lat + jitterLat,
+          lng: coords.lng + jitterLng,
         };
       }
     }
@@ -163,7 +230,7 @@ export function useGeocode(validators: Validator[]): ValidatorWithGeo[] {
         return { ...v, ...known, geoSource: 'lookup' as const };
       }
 
-      // Strategy 3: fallback hash-based positioning
+      // Strategy 3: fallback hash-based positioning to known DC regions
       const fallback = hashToCoords(v.iotaAddress);
       return { ...v, ...fallback, geoSource: 'fallback' as const };
     });
