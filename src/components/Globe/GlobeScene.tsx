@@ -128,7 +128,7 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator }: G
 
   const handlePointHover = useCallback((point: object | null) => {
     isHoveringPointRef.current = !!point;
-    
+
     const globe = globeRef.current;
     if (!globe) return;
     const controls = globe.controls();
@@ -202,8 +202,8 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator }: G
   }, [geoValidators]);
 
   return (
-    <div 
-      ref={containerRef} 
+    <div
+      ref={containerRef}
       className="relative w-full h-full overflow-hidden bg-transparent"
       onPointerDown={(e) => {
         dragStartPosRef.current = { x: e.clientX, y: e.clientY };
@@ -229,7 +229,7 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator }: G
             // Remove the bright water image, use solid color via material (or let it be transparent)
             globeImageUrl={undefined}
             backgroundColor="rgba(0,0,0,0)"
-            atmosphereColor="#3b82f6" // Changed to subtle blue to match page better than pure white
+            atmosphereColor="#b4fffa" // Use 6-character hex (Three.js doesn't support 8-character hex well)
             atmosphereAltitude={0.15}
             animateIn={true}
 
