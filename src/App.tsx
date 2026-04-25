@@ -17,6 +17,7 @@ import { EpochOverlay } from './components/Dashboard/EpochOverlay';
 import { PriceOverlay } from './components/Dashboard/PriceOverlay';
 import { DataTable } from './components/Dashboard/DataTable';
 import { ErrorBoundary } from './components/UI/ErrorBoundary';
+import { StarsBackground } from './components/UI/StarsBackground';
 import { useValidators } from './hooks/useValidators';
 
 const queryClient = new QueryClient({
@@ -38,7 +39,8 @@ function AppContent() {
   } = useValidators();
 
   return (
-    <div className="min-h-screen bg-iota-bg text-white">
+    <div className="min-h-screen bg-iota-bg text-white relative">
+      <StarsBackground />
       <Header />
 
       <main className="max-w-[1400px] mx-auto px-4 lg:px-8 pt-20 pb-8">
