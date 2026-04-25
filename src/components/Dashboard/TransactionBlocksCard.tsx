@@ -59,9 +59,9 @@ export function TransactionBlocksCard({ epoch }: TransactionBlocksCardProps) {
   );
 
   return (
-    <div className="bg-iota-card backdrop-blur-sm rounded-2xl p-6 animate-fade-in">
+    <div className="bg-iota-card backdrop-blur-sm rounded-2xl p-4 animate-fade-in">
       {/* Card Title */}
-      <h4 className="text-sm font-medium text-iota-label mb-4 flex items-center gap-2">
+      <h4 className="text-sm font-medium text-iota-label mb-3 flex items-center gap-2">
         <svg
           className="w-4 h-4 text-iota-blue"
           fill="none"
@@ -79,13 +79,13 @@ export function TransactionBlocksCard({ epoch }: TransactionBlocksCardProps) {
       </h4>
 
       {/* Metrics */}
-      <div className="flex gap-8 mb-4">
+      <div className="flex gap-6 mb-3">
         <div>
-          <span className="text-2xl font-semibold text-white">633.2 M</span>
+          <span className="text-xl font-semibold text-white">633.2 M</span>
           <p className="text-xs text-iota-label mt-0.5">Total</p>
         </div>
         <div>
-          <span className="text-2xl font-semibold text-white">1.83 M</span>
+          <span className="text-xl font-semibold text-white">1.83 M</span>
           <p className="text-xs text-iota-label mt-0.5">Last epoch</p>
         </div>
       </div>
