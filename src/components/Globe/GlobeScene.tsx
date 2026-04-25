@@ -194,7 +194,7 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator }: G
           endLat: end.lat,
           endLng: end.lng,
           // Gradient arc color
-          color: ['rgba(6, 182, 212, 0.1)', 'rgba(59, 130, 246, 0.9)']
+          color: ['rgba(255, 255, 255, 0.05)', 'rgba(255, 255, 255, 0.6)']
         });
       }
     }
@@ -245,7 +245,7 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator }: G
             arcDashLength={0.4}
             arcDashGap={4}
             arcDashInitialGap={() => Math.random() * 5}
-            arcDashAnimateTime={2000}
+            arcDashAnimateTime={200}
             arcAltitudeAutoScale={0.3}
 
             // Auto-rotate
