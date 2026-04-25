@@ -38,10 +38,10 @@ export function TransactionBlocksCard({ epoch }: TransactionBlocksCardProps) {
   };
 
   return (
-    <div className="bg-iota-card rounded-2xl p-4 animate-fade-in flex flex-col h-full">
+    <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl p-4 animate-fade-in flex flex-col h-full">
       <h4 className="text-sm font-medium text-iota-label mb-3 flex items-center gap-2">
         <svg
-          className="w-4 h-4 text-iota-blue"
+          className="w-4 h-4 text-white"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -85,7 +85,7 @@ export function TransactionBlocksCard({ epoch }: TransactionBlocksCardProps) {
                 <div className="flex flex-col">
                   <div className="flex items-center gap-1.5">
                     <span className="text-[9px] font-semibold text-iota-muted uppercase tracking-wider">Block</span>
-                    <span className="text-blue-400 font-mono text-sm">{formatDigest(cp.digest)}</span>
+                    <span className="text-white font-mono text-sm">{formatDigest(cp.digest)}</span>
                   </div>
                   <span className="text-[10px] text-iota-muted font-mono mt-0.5">Epoch {cp.epoch}</span>
                 </div>

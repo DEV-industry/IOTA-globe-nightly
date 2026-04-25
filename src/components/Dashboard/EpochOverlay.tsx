@@ -48,12 +48,7 @@ function EpochRing({
         viewBox={`0 0 ${RING_SIZE} ${RING_SIZE}`}
         className="transform -rotate-90"
       >
-        <defs>
-          <linearGradient id="epochRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#3b82f6" />
-            <stop offset="100%" stopColor="#06b6d4" />
-          </linearGradient>
-        </defs>
+
 
         {/* Background track */}
         <circle
@@ -72,7 +67,7 @@ function EpochRing({
           cy={RING_CENTER}
           r={RING_RADIUS}
           fill="none"
-          stroke="url(#epochRingGrad)"
+          stroke="white"
           strokeWidth={RING_STROKE}
           strokeLinecap="round"
           strokeDasharray={CIRCUMFERENCE}
@@ -203,9 +198,9 @@ export function EpochOverlay({
       href={`https://explorer.iota.org/epoch/${epoch}`}
       target="_blank"
       rel="noopener noreferrer"
-      className="block bg-[#0F141C] backdrop-blur-md rounded-xl p-4
+      className="block bg-black/40 backdrop-blur-md rounded-xl p-4
                  transition-all cursor-pointer group animate-slide-up
-                 hover:bg-[#151c28] border border-white/[0.04]"
+                 hover:bg-white/5 border border-white/10"
     >
       {/* ─── Top row: Ring | Divider | Validator | Stats ─── */}
       <div className="flex items-center gap-4">
@@ -244,7 +239,7 @@ export function EpochOverlay({
       <div className="mt-3 pt-3 border-t border-white/[0.04]">
         <div className="w-full h-1 bg-iota-border/40 rounded-full overflow-hidden mb-2">
           <div
-            className="h-full bg-gradient-to-r from-iota-blue to-iota-cyan rounded-full transition-all duration-1000"
+            className="h-full bg-white rounded-full transition-all duration-1000"
             style={{ width: `${Math.min(progress * 100, 100)}%` }}
           />
         </div>

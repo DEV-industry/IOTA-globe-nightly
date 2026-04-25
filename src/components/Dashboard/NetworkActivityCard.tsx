@@ -52,11 +52,11 @@ export function NetworkActivityCard({
     : '—';
 
   return (
-    <div className="bg-iota-card backdrop-blur-sm rounded-2xl p-4 animate-fade-in">
+    <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl p-4 animate-fade-in">
       {/* Card Title */}
       <h4 className="text-sm font-medium text-iota-label mb-4 flex items-center gap-2">
         <svg
-          className="w-4 h-4 text-iota-cyan"
+          className="w-4 h-4 text-white"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"

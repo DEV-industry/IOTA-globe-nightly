@@ -31,7 +31,7 @@ export function DataTable({ validators }: DataTableProps) {
   ];
 
   return (
-    <div className="bg-iota-card backdrop-blur-sm rounded-2xl animate-slide-up">
+    <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl animate-slide-up overflow-hidden">
       {/* Tab Bar */}
       <div className="flex items-center justify-between border-b border-iota-border px-6">
         <div className="flex">
@@ -48,7 +48,7 @@ export function DataTable({ validators }: DataTableProps) {
             >
               {tab.label}
               {activeTab === tab.key && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-iota-cyan rounded-full" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full" />
               )}
             </button>
           ))}
@@ -97,7 +97,7 @@ export function DataTable({ validators }: DataTableProps) {
                 className="border-b border-iota-border/30 table-row-hover cursor-pointer"
               >
                 <td className="px-6 py-3">
-                  <span className="text-sm text-iota-cyan font-mono hover:underline">
+                  <span className="text-sm text-white font-mono hover:underline">
                     {row.digest}
                   </span>
                 </td>
@@ -128,7 +128,7 @@ export function DataTable({ validators }: DataTableProps) {
 
       {/* Footer */}
       <div className="flex items-center justify-center py-3 border-t border-iota-border/50">
-        <button className="text-xs text-iota-cyan hover:text-white transition-colors font-medium">
+        <button className="text-xs text-white hover:text-iota-label transition-colors font-medium">
           View All →
         </button>
       </div>

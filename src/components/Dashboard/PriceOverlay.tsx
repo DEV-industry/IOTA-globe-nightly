@@ -11,8 +11,8 @@ export function PriceOverlay() {
       href="https://www.coingecko.com/en/coins/iota"
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center gap-3 bg-iota-bg/90 backdrop-blur-md
-                 rounded-xl px-4 py-3 transition-colors group animate-slide-up"
+      className="flex items-center gap-3 bg-black/40 backdrop-blur-md border border-white/10
+                 rounded-xl px-4 py-3 transition-colors group animate-slide-up hover:bg-white/5"
     >
       {/* IOTA icon */}
       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-iota-blue to-iota-cyan flex items-center justify-center shrink-0">
