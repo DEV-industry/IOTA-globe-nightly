@@ -11,7 +11,7 @@ import type { GlobeMethods } from 'react-globe.gl';
 import { GlobeControls } from './GlobeControls';
 import { getValidatorTooltipHtml } from './ValidatorMarker';
 import { useGeocode } from '../../hooks/useGeocode';
-import { getStakeTier, getTierColor, getTierRadius, getTierAltitude } from '../../utils/formatters';
+import { getStakeTier, getTierColor, getTierRadius } from '../../utils/formatters';
 import type { Validator, ValidatorWithGeo } from '../../types';
 
 
@@ -250,7 +250,28 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator }: G
 
             // Auto-rotate
             enablePointerInteraction={true}
-            // Points layer
+            // Rings Layer (Sonar Effect)
+            ringsData={geoValidators}
+            ringLat="lat"
+            ringLng="lng"
+            ringColor={(d: object) => {
+              const v = d as ValidatorWithGeo;
+              const tier = getStakeTier(v, validators);
+              return v.iotaAddress === selectedAddress ? '#ffffff' : getTierColor(tier);
+            }}
+            ringMaxRadius={(d: object) => {
+              const v = d as ValidatorWithGeo;
+              const tier = getStakeTier(v, validators);
+              return v.iotaAddress === selectedAddress ? 4.0 : getTierRadius(tier) * 4.0;
+            }}
+            ringPropagationSpeed={1.2}
+            ringRepeatPeriod={(d: object) => {
+               const v = d as ValidatorWithGeo;
+               const tier = getStakeTier(v, validators);
+               return tier === 'top' ? 800 : tier === 'mid' ? 1200 : 1600;
+            }}
+
+            // Points layer (Flat dots)
             pointsData={geoValidators}
             pointLat="lat"
             pointLng="lng"
@@ -264,18 +285,14 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator }: G
               const tier = getStakeTier(v, validators);
               return v.iotaAddress === selectedAddress ? 0.7 : getTierRadius(tier);
             }}
-            pointAltitude={(d: object) => {
-              const v = d as ValidatorWithGeo;
-              const tier = getStakeTier(v, validators);
-              return v.iotaAddress === selectedAddress ? 0.08 : getTierAltitude(tier);
-            }}
+            pointAltitude={() => 0.01} // Flat on surface
             pointLabel={(d: object) => {
               const v = d as ValidatorWithGeo;
               return getValidatorTooltipHtml(v, validators);
             }}
             onPointClick={handlePointClick}
             onPointHover={handlePointHover}
-            pointResolution={8}
+            pointResolution={16}
             pointsMerge={false}
             pointsTransitionDuration={800}
           />
