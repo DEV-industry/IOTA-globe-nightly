@@ -18,6 +18,7 @@ import { PriceOverlay } from './components/Dashboard/PriceOverlay';
 import { DataTable } from './components/Dashboard/DataTable';
 import { ErrorBoundary } from './components/UI/ErrorBoundary';
 import { StarsBackground } from './components/UI/StarsBackground';
+import { GlobalLoader } from './components/UI/GlobalLoader';
 import { useValidators } from './hooks/useValidators';
 
 const queryClient = new QueryClient({
@@ -36,7 +37,12 @@ function AppContent() {
     iotaTotalSupply,
     activeValidatorCount,
     data,
+    isLoading,
   } = useValidators();
+
+  if (isLoading) {
+    return <GlobalLoader />;
+  }
 
   return (
     <div className="min-h-screen bg-iota-bg text-white relative">
@@ -73,7 +79,7 @@ function AppContent() {
           </div>
 
           {/* Column 2: Transaction Blocks */}
-          <TransactionBlocksCard epoch={epoch} />
+          <TransactionBlocksCard />
         </div>
 
         {/* ─── Data Table Section ───────────────────────────── */}
