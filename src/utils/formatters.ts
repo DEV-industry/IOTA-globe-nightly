@@ -2,7 +2,7 @@
  * Formatting utilities for IOTA Globe.
  */
 
-import type { StakeTier, Validator } from '../types';
+import type { StakeTier, Validator, TransactionRow } from '../types';
 
 // IOTA uses 9 decimal places (like SUI)
 const IOTA_DECIMALS = 9;
@@ -30,6 +30,16 @@ export function formatStakeCompact(nanos: string): string {
   if (iota >= 1_000_000) return `${(iota / 1_000_000).toFixed(1)}M`;
   if (iota >= 1_000) return `${(iota / 1_000).toFixed(1)}K`;
   return iota.toFixed(2);
+}
+
+/**
+ * Formats a raw number into compact notation (e.g. 14650000 → "14.65M").
+ */
+export function formatCompactNumber(n: number): string {
+  if (n >= 1_000_000_000) return `${(n / 1_000_000_000).toFixed(2)}B`;
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(2)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+  return n.toLocaleString('en-US');
 }
 
 /**
@@ -78,11 +88,11 @@ export function getStakeTier(
 export function getTierColor(tier: StakeTier): string {
   switch (tier) {
     case 'top':
-      return '#00c2ff'; // IOTA blue
+      return '#06b6d4'; // cyan for muted blue theme
     case 'mid':
       return '#ffffff'; // white
     case 'low':
-      return '#8888aa'; // grey
+      return '#64748b'; // muted slate
   }
 }
 
@@ -132,4 +142,66 @@ export function timeAgo(timestampMs: number): string {
   if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
   if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
   return `${Math.floor(seconds / 86400)}d ago`;
+}
+
+/**
+ * Formats remaining epoch time from start timestamp and duration.
+ */
+export function formatEpochTimeLeft(
+  startMs: string,
+  durationMs: string,
+): { timeLeft: string; progress: number; startLabel: string } {
+  const start = Number(startMs);
+  const duration = Number(durationMs);
+  const end = start + duration;
+  const now = Date.now();
+  const remaining = Math.max(0, end - now);
+  const progress = Math.min(1, (now - start) / duration);
+
+  const hours = Math.floor(remaining / 3_600_000);
+  const minutes = Math.floor((remaining % 3_600_000) / 60_000);
+
+  const startDate = new Date(start);
+  const timeStr = startDate.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+  const isToday = new Date().toDateString() === startDate.toDateString();
+  const startLabel = `Started ${timeStr}, ${isToday ? 'Today' : startDate.toLocaleDateString()}`;
+
+  return {
+    timeLeft: `${hours}h ${minutes}m left`,
+    progress,
+    startLabel,
+  };
+}
+
+/**
+ * Generates placeholder transaction rows from validator addresses.
+ * Used to populate the data table before real transaction data is available.
+ */
+export function generatePlaceholderTxRows(
+  validators: Validator[],
+  count = 15,
+): TransactionRow[] {
+  const rows: TransactionRow[] = [];
+  for (let i = 0; i < count; i++) {
+    const v = validators[i % validators.length];
+    // Create a pseudo-random digest from the address
+    const digestBase = v
+      ? v.iotaAddress.slice(2, 14)
+      : `${i}abc${i}def${i}`;
+    const digest = `${digestBase}${String.fromCharCode(65 + (i % 26))}${i}`;
+
+    rows.push({
+      digest: truncateAddress(`0x${digest}${'0'.repeat(40)}`, 10),
+      sender: 'IOTA System Account',
+      senderAddress: '0x0',
+      txns: '--',
+      gas: '0 IOTA',
+      time: `${i % 3}s`,
+    });
+  }
+  return rows;
 }

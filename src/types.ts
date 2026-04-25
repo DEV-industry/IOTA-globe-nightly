@@ -57,3 +57,18 @@ export interface RpcProxyRequest {
   method: string;
   params?: unknown[];
 }
+
+// ─── Transaction row for the data table ─────────────────────────
+
+export interface TransactionRow {
+  digest: string;
+  sender: string;
+  senderAddress: string;
+  txns: string;
+  gas: string;
+  time: string;
+}
+
+// ─── Tab types for the data table ───────────────────────────────
+
+export type DataTableTab = 'transactions' | 'epochs' | 'checkpoints';
