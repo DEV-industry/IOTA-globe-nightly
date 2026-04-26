@@ -9,7 +9,11 @@ import { IotaLogo } from '../UI/IotaLogo';
 import { useSettings } from '../../context/SettingsContext';
 import { AnimatePresence, motion } from 'framer-motion';
 
-export function Header() {
+interface HeaderProps {
+  showAnimations?: boolean;
+}
+
+export function Header({ showAnimations = true }: HeaderProps) {
   const [searchValue, setSearchValue] = useState('');
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -41,9 +45,12 @@ export function Header() {
   }, []);
 
   return (
-    <header
+    <motion.header
       id="explorer-header"
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      initial={{ y: -50, opacity: 0 }}
+      animate={showAnimations ? { y: 0, opacity: 1 } : { y: -50, opacity: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
+      className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${
         isScrolled
           ? 'bg-[#000]/80 backdrop-blur-xl border-b border-iota-border'
           : 'bg-transparent border-transparent'
@@ -158,6 +165,6 @@ export function Header() {
           </div>
         </div>
       </div>
-    </header>
+    </motion.header>
   );
 }

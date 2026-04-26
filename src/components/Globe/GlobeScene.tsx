@@ -21,9 +21,10 @@ interface GlobeSceneProps {
   validators: Validator[];
   selectedAddress: string | null;
   onSelectValidator: (validator: Validator) => void;
+  onReady?: () => void;
 }
 
-export function GlobeScene({ validators, selectedAddress, onSelectValidator }: GlobeSceneProps) {
+export function GlobeScene({ validators, selectedAddress, onSelectValidator, onReady }: GlobeSceneProps) {
   const globeRef = useRef<GlobeMethods | undefined>(undefined);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -176,6 +177,17 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator }: G
   const [hexData, setHexData] = useState<any[]>([]);
   // Arcs data for GitHub style
   const [arcsData, setArcsData] = useState<any[]>([]);
+  const [isGlobeInitialized, setIsGlobeInitialized] = useState(false);
+
+  useEffect(() => {
+    if (isGlobeInitialized && hexData.length > 0) {
+      // Add a small delay to ensure rendering is complete before hiding loader
+      const timer = setTimeout(() => {
+        onReady?.();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isGlobeInitialized, hexData, onReady]);
 
   useEffect(() => {
     fetch('https://raw.githubusercontent.com/vasturiano/react-globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson')
@@ -235,6 +247,7 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator }: G
             atmosphereColor="#b4fffa" // Use 6-character hex (Three.js doesn't support 8-character hex well)
             atmosphereAltitude={0.1}
             animateIn={true}
+            onGlobeReady={() => setIsGlobeInitialized(true)}
 
             // Configure Hex Polygons (Dot matrix look)
             hexPolygonsData={hexData}

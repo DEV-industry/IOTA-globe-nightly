@@ -10,9 +10,10 @@ import type { Validator } from '../../types';
 
 interface HeroGlobeProps {
   validators: Validator[];
+  onReady?: () => void;
 }
 
-export function HeroGlobe({ validators }: HeroGlobeProps) {
+export function HeroGlobe({ validators, onReady }: HeroGlobeProps) {
   const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
 
   const handleSelectValidator = (validator: Validator) => {
@@ -27,6 +28,7 @@ export function HeroGlobe({ validators }: HeroGlobeProps) {
         validators={validators}
         selectedAddress={selectedAddress}
         onSelectValidator={handleSelectValidator}
+        onReady={onReady}
       />
       {/* Optional: Add a subtle overlay for validator count if needed, or leave it pure */}
       <div className="absolute top-4 left-4 z-10 px-3 py-1.5 rounded-full bg-iota-dark/40 backdrop-blur-sm border border-white/5 text-xs text-iota-muted">
