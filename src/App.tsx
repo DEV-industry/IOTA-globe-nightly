@@ -18,6 +18,7 @@ import { PriceOverlay } from './components/Dashboard/PriceOverlay';
 import { TopValidatorsCard } from './components/Dashboard/TopValidatorsCard';
 import { LiveTpsCard } from './components/Dashboard/LiveTpsCard';
 import { DataTable } from './components/Dashboard/DataTable';
+import { RefGasCard, AvgTxnCard, StorageFundCard } from './components/Dashboard/NetworkEconomicsCard';
 import { ErrorBoundary } from './components/UI/ErrorBoundary';
 import { StarsBackground } from './components/UI/StarsBackground';
 import { GlobalLoader } from './components/UI/GlobalLoader';
@@ -77,7 +78,7 @@ function AppContent() {
         </div>
 
         {/* ─── Dashboard Cards Grid ─────────────────────────── */}
-        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 max-w-5xl mx-auto gap-4 mb-6 -mt-[5vh]">
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 max-w-5xl mx-auto gap-4 mb-3 -mt-[5vh]">
           {/* Column 1: Network Activity + Overlays */}
           <div className="flex flex-col gap-3">
             <motion.div initial={{ y: 30, opacity: 0 }} animate={showAnimations ? { y: 0, opacity: 1 } : { y: 30, opacity: 0 }} transition={{ duration: 0.5, delay: 0.4 }}>
@@ -112,15 +113,29 @@ function AppContent() {
             <motion.div initial={{ y: 30, opacity: 0 }} animate={showAnimations ? { y: 0, opacity: 1 } : { y: 30, opacity: 0 }} transition={{ duration: 0.5, delay: 0.8 }}>
               <LiveTpsCard />
             </motion.div>
-            
+
             <motion.div initial={{ y: 30, opacity: 0 }} animate={showAnimations ? { y: 0, opacity: 1 } : { y: 30, opacity: 0 }} transition={{ duration: 0.5, delay: 0.9 }}>
               <TransactionBlocksCard />
+            </motion.div>
+
+            <motion.div initial={{ y: 30, opacity: 0 }} animate={showAnimations ? { y: 0, opacity: 1 } : { y: 30, opacity: 0 }} transition={{ duration: 0.5, delay: 1.0 }}>
+              <RefGasCard />
             </motion.div>
           </div>
         </div>
 
+        {/* ─── Bottom Economics Row ─────────────────────────── */}
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 max-w-5xl mx-auto gap-4 mb-6">
+          <motion.div initial={{ y: 30, opacity: 0 }} animate={showAnimations ? { y: 0, opacity: 1 } : { y: 30, opacity: 0 }} transition={{ duration: 0.5, delay: 1.1 }}>
+            <AvgTxnCard />
+          </motion.div>
+          <motion.div initial={{ y: 30, opacity: 0 }} animate={showAnimations ? { y: 0, opacity: 1 } : { y: 30, opacity: 0 }} transition={{ duration: 0.5, delay: 1.2 }}>
+            <StorageFundCard />
+          </motion.div>
+        </div>
+
         {/* ─── Data Table Section ───────────────────────────── */}
-        <motion.div initial={{ y: 30, opacity: 0 }} animate={showAnimations ? { y: 0, opacity: 1 } : { y: 30, opacity: 0 }} transition={{ duration: 0.5, delay: 1.0 }}>
+        <motion.div initial={{ y: 30, opacity: 0 }} animate={showAnimations ? { y: 0, opacity: 1 } : { y: 30, opacity: 0 }} transition={{ duration: 0.5, delay: 1.3 }}>
           <DataTable />
         </motion.div>
       </main>

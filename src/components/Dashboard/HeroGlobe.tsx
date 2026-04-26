@@ -4,8 +4,10 @@
  * Sits at the very top of the dashboard.
  */
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { GlobeScene } from '../Globe/GlobeScene';
+import { ValidatorModal } from '../Globe/ValidatorModal';
 import type { Validator } from '../../types';
 
 interface HeroGlobeProps {
@@ -22,6 +24,11 @@ export function HeroGlobe({ validators, onReady }: HeroGlobeProps) {
     );
   };
 
+  const selectedValidator = useMemo(() => {
+    if (!selectedAddress) return null;
+    return validators.find(v => v.iotaAddress === selectedAddress) || null;
+  }, [selectedAddress, validators]);
+
   return (
     <div className="w-full relative animate-fade-in h-[70vh]">
       <GlobeScene
@@ -34,6 +41,15 @@ export function HeroGlobe({ validators, onReady }: HeroGlobeProps) {
       <div className="absolute top-4 left-4 z-10 px-3 py-1.5 rounded-full bg-iota-dark/40 backdrop-blur-sm border border-white/5 text-xs text-iota-muted">
         <span className="text-white font-medium">{validators.length}</span> validators
       </div>
+
+      <AnimatePresence>
+        {selectedValidator && (
+          <ValidatorModal 
+            validator={selectedValidator} 
+            onClose={() => setSelectedAddress(null)} 
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

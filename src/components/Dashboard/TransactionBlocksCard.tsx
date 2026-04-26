@@ -58,7 +58,7 @@ export function TransactionBlocksCard() {
           <div className="text-center text-xs text-iota-muted py-4">No checkpoints found</div>
         )}
         
-        {checkpoints.slice(0, 6).map((cp) => {
+        {checkpoints.slice(0, 7).map((cp) => {
           const avatarUrl = getAvatarForBlock(cp.digest);
           
           return (
