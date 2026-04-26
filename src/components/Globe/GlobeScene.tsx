@@ -13,6 +13,7 @@ import { getValidatorTooltipHtml } from './ValidatorMarker';
 import { useGeocode } from '../../hooks/useGeocode';
 import { getStakeTier, getTierColor, getTierRadius } from '../../utils/formatters';
 import type { Validator, ValidatorWithGeo } from '../../types';
+import { useSettings } from '../../context/SettingsContext';
 
 
 
@@ -30,6 +31,8 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator }: G
   const isHoveringPointRef = useRef(false);
   const dragStartPosRef = useRef({ x: 0, y: 0 });
   const wasDragRef = useRef(false);
+  
+  const { settings } = useSettings();
 
   // Geocode validators
   const geoValidators = useGeocode(validators);
@@ -240,7 +243,7 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator }: G
             hexPolygonColor={() => '#d5d7daff'} // User requested continent color
 
             // Configure Arcs (GitHub style connecting lines)
-            arcsData={arcsData}
+            arcsData={settings.enableGlobeAnimations ? arcsData : []}
             arcColor="color"
             arcDashLength={0.4}
             arcDashGap={4}
