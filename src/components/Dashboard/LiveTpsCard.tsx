@@ -9,6 +9,7 @@
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useCheckpoints } from '../../hooks/useCheckpoints';
 
 // ─── Types ──────────────────────────────────────────────────────
 
@@ -22,50 +23,49 @@ type Trend = 'up' | 'down' | 'flat';
 
 // ─── Simulated data hook (replace with WS later) ────────────────
 
-const TICK_MS = 2_000; // update every 2 seconds
 const HISTORY_LENGTH = 20; // keep last 20 snapshots for sparkline
 
-function useSimulatedTps() {
+function useRealTps() {
+  const { checkpoints, isLoading, isError } = useCheckpoints();
   const [current, setCurrent] = useState<TpsSnapshot | null>(null);
   const [history, setHistory] = useState<TpsSnapshot[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isError] = useState(false);
   const prevRef = useRef<TpsSnapshot | null>(null);
 
   useEffect(() => {
-    // Simulate initial load delay
-    const initTimeout = setTimeout(() => {
-      setIsLoading(false);
-    }, 800);
+    if (!checkpoints || checkpoints.length < 2) return;
 
-    let baselineTps = 18 + Math.random() * 12; // 18-30 range
-    let baselineBps = 2 + Math.random() * 3; // 2-5 range
+    const latest = checkpoints[0];
+    const oldest = checkpoints[checkpoints.length - 1];
 
-    const interval = setInterval(() => {
-      // Random walk with drift back towards baseline
-      const tpsDelta = (Math.random() - 0.48) * 6; // slight upward bias
-      const bpsDelta = (Math.random() - 0.48) * 1.2;
+    if (!latest || !oldest) return;
 
-      baselineTps = Math.max(5, Math.min(120, baselineTps + tpsDelta));
-      baselineBps = Math.max(0.5, Math.min(15, baselineBps + bpsDelta));
+    const timeDiff =
+      (Number(latest.timestampMs) - Number(oldest.timestampMs)) / 1000;
+    
+    if (timeDiff <= 0) return;
 
-      const snap: TpsSnapshot = {
-        tps: Math.round(baselineTps * 10) / 10,
-        bps: Math.round(baselineBps * 10) / 10,
-        timestamp: Date.now(),
-      };
+    const txDiff =
+      Number(latest.networkTotalTransactions) -
+      Number(oldest.networkTotalTransactions);
+    const blocksDiff =
+      Number(latest.sequenceNumber) - Number(oldest.sequenceNumber);
 
+    const tps = Math.round((txDiff / timeDiff) * 10) / 10;
+    const bps = Math.round((blocksDiff / timeDiff) * 10) / 10;
+
+    const snap: TpsSnapshot = {
+      tps,
+      bps,
+      timestamp: Number(latest.timestampMs),
+    };
+
+    // Only update if it's a new measurement (based on timestamp)
+    if (!prevRef.current || prevRef.current.timestamp !== snap.timestamp) {
       prevRef.current = current;
       setCurrent(snap);
       setHistory((h) => [...h.slice(-(HISTORY_LENGTH - 1)), snap]);
-    }, TICK_MS);
-
-    return () => {
-      clearTimeout(initTimeout);
-      clearInterval(interval);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    }
+  }, [checkpoints, current]);
 
   const previous = prevRef.current;
 
@@ -237,7 +237,7 @@ function Sparkline({
 
 export function LiveTpsCard() {
   const { current, history, tpsTrend, bpsTrend, isLoading, isError } =
-    useSimulatedTps();
+    useRealTps();
 
   const tpsHistory = history.map((s) => s.tps);
   const bpsHistory = history.map((s) => s.bps);
@@ -343,7 +343,7 @@ export function LiveTpsCard() {
           {/* Footer */}
           <div className="mt-3 pt-2 border-t border-white/5 flex items-center justify-between">
             <span className="text-[10px] text-iota-muted">
-              Updates every 2s
+              Updates every 5s
             </span>
             <span className="text-[10px] text-iota-muted tabular-nums font-mono">
               Peak: {Math.max(...tpsHistory, 0).toFixed(1)} TPS
