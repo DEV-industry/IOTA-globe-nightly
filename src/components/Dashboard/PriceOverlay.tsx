@@ -2,7 +2,6 @@
  * PriceOverlay — floating IOTA price display.
  *
  * Shows the current IOTA price with a link to CoinGecko.
- * Uses hardcoded placeholder price (no new API calls).
  */
 
 export function PriceOverlay() {
@@ -11,30 +10,27 @@ export function PriceOverlay() {
       href="https://www.coingecko.com/en/coins/iota"
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center gap-3 bg-black/40 backdrop-blur-md border border-white/10
-                 rounded-xl px-4 py-3 transition-colors group animate-slide-up hover:bg-white/5"
+      className="flex items-center gap-4 bg-black/40 backdrop-blur-md border border-white/10
+                 rounded-2xl px-5 py-3.5 transition-all group animate-slide-up hover:bg-white/5"
     >
-      {/* IOTA icon */}
-      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-iota-blue to-iota-cyan flex items-center justify-center shrink-0">
-        <svg
-          viewBox="0 0 24 24"
-          fill="white"
-          className="w-4 h-4"
-        >
-          <circle cx="12" cy="4" r="2" />
-          <circle cx="8" cy="10" r="1.8" />
-          <circle cx="14" cy="9" r="1.5" />
-          <circle cx="10" cy="15" r="1.3" />
-          <circle cx="16" cy="14" r="1.2" />
-          <circle cx="12" cy="20" r="2" />
-        </svg>
+      {/* IOTA icon - Classic Logo */}
+      <div className="w-10 h-10 shrink-0 shadow-[0_0_15px_rgba(255,255,255,0.1)] group-hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-shadow rounded-full overflow-hidden bg-white/5 p-0.5">
+        <img 
+          src="https://cryptologos.cc/logos/iota-miota-logo.png" 
+          alt="IOTA"
+          className="w-full h-full object-contain drop-shadow-md"
+          onError={(e) => {
+            // Fallback if image fails to load
+            (e.target as HTMLImageElement).src = 'https://s2.coinmarketcap.com/static/img/coins/64x64/1720.png';
+          }}
+        />
       </div>
 
-      <div className="flex flex-col">
-        <div className="flex items-baseline gap-1.5">
-          <span className="text-sm font-semibold text-white">1 IOTA = $0.06</span>
-        </div>
-        <span className="text-[11px] text-iota-muted group-hover:text-iota-label transition-colors">
+      <div className="flex flex-col gap-0.5">
+        <span className="text-[16px] leading-tight font-bold text-white tracking-tight">
+          1 IOTA = $0.06
+        </span>
+        <span className="text-[11px] leading-none text-iota-muted font-medium transition-colors">
           via CoinGecko
         </span>
       </div>
