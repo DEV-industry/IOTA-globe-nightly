@@ -20,6 +20,8 @@ export interface SearchSuggestion {
   id: string;
   type: SuggestionType;
   label: string;
+  /** Raw identifier used for navigation (address, hash, epoch number, etc.). */
+  value: string;
   /** Optional image URL — used for Validator avatars. */
   imageUrl?: string;
 }
@@ -66,6 +68,18 @@ const BADGE_LABELS: Record<SuggestionType, string> = {
   Validator: 'Val',
 };
 
+/** Base URL for the official IOTA Explorer. */
+const EXPLORER_BASE = 'https://explorer.iota.org';
+
+/** Maps a suggestion type to its explorer path segment. */
+const EXPLORER_PATHS: Record<SuggestionType, string> = {
+  Address: 'address',
+  Transaction: 'txblock',
+  Block: 'checkpoint',
+  Epoch: 'epoch',
+  Validator: 'address',
+};
+
 /* ─── Mock fetch ──────────────────────────────────────────── */
 
 /**
@@ -84,11 +98,12 @@ function mockFetchSuggestions(query: string): Promise<SearchSuggestion[]> {
       // Pure numeric → Epoch suggestions
       if (/^\d+$/.test(q)) {
         resolve([
-          { id: `epoch-${q}`, type: 'Epoch', label: `Epoch #${q}` },
+          { id: `epoch-${q}`, type: 'Epoch', label: `Epoch #${q}`, value: q },
           {
             id: `epoch-${Number(q) + 1}`,
             type: 'Epoch',
             label: `Epoch #${Number(q) + 1}`,
+            value: String(Number(q) + 1),
           },
         ]);
         return;
@@ -98,8 +113,8 @@ function mockFetchSuggestions(query: string): Promise<SearchSuggestion[]> {
       if (q.startsWith('0x') || q.length >= 40) {
         const short = q.length > 12 ? `${q.slice(0, 6)}…${q.slice(-4)}` : q;
         resolve([
-          { id: `addr-${q}`, type: 'Address', label: short },
-          { id: `tx-${q}`, type: 'Transaction', label: short },
+          { id: `addr-${q}`, type: 'Address', label: short, value: q },
+          { id: `tx-${q}`, type: 'Transaction', label: short, value: q },
         ]);
         return;
       }
@@ -110,18 +125,21 @@ function mockFetchSuggestions(query: string): Promise<SearchSuggestion[]> {
           id: `addr-${q}`,
           type: 'Address',
           label: `0x${q.replace(/\s/g, '')}…a3f8`,
+          value: `0x${q.replace(/\s/g, '')}a3f8`,
         },
         {
           id: `tx-${q}`,
           type: 'Transaction',
           label: `0x${q.replace(/\s/g, '')}…7b2c`,
+          value: `0x${q.replace(/\s/g, '')}7b2c`,
         },
         {
           id: `block-${q}`,
           type: 'Block',
           label: `Block containing "${q}"`,
+          value: q,
         },
-        { id: `epoch-${q}`, type: 'Epoch', label: `Epoch matching "${q}"` },
+        { id: `epoch-${q}`, type: 'Epoch', label: `Epoch matching "${q}"`, value: q },
       ]);
     }, delay);
   });
@@ -151,6 +169,7 @@ function matchValidators(
       id: `validator-${v.iotaAddress}`,
       type: 'Validator' as const,
       label: v.name || v.iotaAddress.slice(0, 10) + '…',
+      value: v.iotaAddress,
       imageUrl: v.imageUrl || undefined,
     }));
 }
@@ -269,8 +288,9 @@ export function SearchBar() {
 
   /* ── selection handler ────────────────── */
   const handleSelect = (suggestion: SearchSuggestion) => {
-    // In a real app this would navigate to the detail page.
-    console.log('[SearchBar] selected:', suggestion);
+    const path = EXPLORER_PATHS[suggestion.type];
+    const url = `${EXPLORER_BASE}/${path}/${encodeURIComponent(suggestion.value)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
     setQuery(suggestion.label);
     setIsOpen(false);
   };
