@@ -34,6 +34,8 @@ const ALLOWED_METHODS = new Set([
   'iotax_getNetworkMetrics',
   'iota_getNetworkMetrics',
   'iota_getTotalTransactionBlocks',
+  'iota_multiGetTransactionBlocks',
+  'iota_queryTransactionBlocks',
   'iotax_getCurrentEpoch',
   'iota_getCheckpoints',
 ]);

@@ -71,7 +71,7 @@ export interface TransactionRow {
 
 // ─── Tab types for the data table ───────────────────────────────
 
-export type DataTableTab = 'transactions' | 'epochs' | 'checkpoints';
+export type DataTableTab = 'transactions' | 'validators' | 'checkpoints';
 
 // ─── Checkpoints ────────────────────────────────────────────────
 
