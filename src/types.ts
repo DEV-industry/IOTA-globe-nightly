@@ -1,8 +1,8 @@
 /**
  * Shared TypeScript types for IOTA Globe.
  *
- * All types mirror the JSON shape returned by our Express proxy
- * at /api/validators (which merges system state + APY data).
+ * All types mirror the JSON shapes returned by the IOTA mainnet
+ * JSON-RPC endpoint (merged/transformed in iotaApi.ts).
  */
 
 // ─── Validator ──────────────────────────────────────────────────
@@ -38,7 +38,7 @@ export interface ValidatorWithGeo extends Validator {
 
 export type StakeTier = 'top' | 'mid' | 'low';
 
-// ─── System state response from /api/validators ─────────────────
+// ─── System state response (merged in iotaApi.ts) ───────────────
 
 export interface ValidatorsResponse {
   epoch: string;
@@ -51,13 +51,6 @@ export interface ValidatorsResponse {
   validators: Validator[];
   storageFundTotalObjectStorageRebates?: string;
   storageFundNonRefundableBalance?: string;
-}
-
-// ─── Generic JSON-RPC proxy request body ────────────────────────
-
-export interface RpcProxyRequest {
-  method: string;
-  params?: unknown[];
 }
 
 // ─── Transaction row for the data table ─────────────────────────

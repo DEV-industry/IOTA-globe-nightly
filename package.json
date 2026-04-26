@@ -5,9 +5,7 @@
   "description": "Interactive 3D validator map for the IOTA blockchain",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
-    "dev:client": "vite",
-    "dev:server": "tsx watch src/server/proxy.ts",
+    "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\"",
@@ -15,10 +13,6 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.75.2",
-    "cors": "^2.8.5",
-    "dotenv": "^16.5.0",
-    "express": "^5.1.0",
-    "express-rate-limit": "^7.5.0",
     "framer-motion": "^12.9.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
@@ -26,19 +20,15 @@
     "three": "^0.184.0"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.18",
-    "@types/express": "^5.0.2",
     "@types/node": "^22.15.3",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@types/three": "^0.184.0",
     "@vitejs/plugin-react": "^4.4.1",
     "autoprefixer": "^10.4.21",
-    "concurrently": "^9.1.2",
     "postcss": "^8.5.3",
     "prettier": "^3.5.3",
     "tailwindcss": "^3.4.17",
-    "tsx": "^4.19.4",
     "typescript": "~5.8.3",
     "vite": "^6.3.3"
   }
