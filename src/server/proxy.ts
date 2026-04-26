@@ -32,6 +32,8 @@ const ALLOWED_METHODS = new Set([
   'iotax_getCommitteeInfo',
   'iotax_getReferenceGasPrice',
   'iotax_getNetworkMetrics',
+  'iota_getNetworkMetrics',
+  'iota_getTotalTransactionBlocks',
   'iotax_getCurrentEpoch',
   'iota_getCheckpoints',
 ]);
