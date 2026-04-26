@@ -16,6 +16,7 @@ import { HeroGlobe } from './components/Dashboard/HeroGlobe';
 import { EpochOverlay } from './components/Dashboard/EpochOverlay';
 import { PriceOverlay } from './components/Dashboard/PriceOverlay';
 import { TopValidatorsCard } from './components/Dashboard/TopValidatorsCard';
+import { LiveTpsCard } from './components/Dashboard/LiveTpsCard';
 import { DataTable } from './components/Dashboard/DataTable';
 import { ErrorBoundary } from './components/UI/ErrorBoundary';
 import { StarsBackground } from './components/UI/StarsBackground';
@@ -81,8 +82,11 @@ function AppContent() {
             <TopValidatorsCard />
           </div>
 
-          {/* Column 2: Transaction Blocks */}
-          <TransactionBlocksCard />
+          {/* Column 2: Live TPS + Transaction Blocks */}
+          <div className="flex flex-col gap-3">
+            <LiveTpsCard />
+            <TransactionBlocksCard />
+          </div>
         </div>
 
         {/* ─── Data Table Section ───────────────────────────── */}
