@@ -69,16 +69,16 @@ function AppContent() {
       <StarsBackground />
       <Header showAnimations={showAnimations} />
 
-      <main className="max-w-[1400px] mx-auto px-4 lg:px-8 pt-20 pb-8">
+      <main className="max-w-[1400px] mx-auto pt-20 pb-8">
         {/* ─── Top Globe Section ──────────────────────────── */}
-        <div className={`w-full -mx-4 px-4 lg:mx-0 lg:px-0 transition-opacity duration-1000 ${isFullyLoaded ? 'opacity-100' : 'opacity-0'}`}>
+        <div className={`w-full transition-opacity duration-1000 ${isFullyLoaded ? 'opacity-100' : 'opacity-0'}`}>
           <ErrorBoundary>
             <HeroGlobe validators={validators} onReady={() => setIsGlobeReady(true)} />
           </ErrorBoundary>
         </div>
 
         {/* ─── Dashboard Cards Grid ─────────────────────────── */}
-        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 max-w-5xl mx-auto gap-4 mb-3 -mt-[5vh]">
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 max-w-5xl mx-auto gap-4 mb-3 -mt-[5vh] px-4 lg:px-8">
           {/* Column 1: Network Activity + Overlays */}
           <div className="flex flex-col gap-3">
             <motion.div initial={{ y: 30, opacity: 0 }} animate={showAnimations ? { y: 0, opacity: 1 } : { y: 30, opacity: 0 }} transition={{ duration: 0.5, delay: 0.4 }}>
@@ -125,7 +125,7 @@ function AppContent() {
         </div>
 
         {/* ─── Bottom Economics Row ─────────────────────────── */}
-        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 max-w-5xl mx-auto gap-4 mb-6">
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 max-w-5xl mx-auto gap-4 mb-6 px-4 lg:px-8">
           <motion.div initial={{ y: 30, opacity: 0 }} animate={showAnimations ? { y: 0, opacity: 1 } : { y: 30, opacity: 0 }} transition={{ duration: 0.5, delay: 1.1 }}>
             <AvgTxnCard />
           </motion.div>
@@ -135,7 +135,7 @@ function AppContent() {
         </div>
 
         {/* ─── Data Table Section ───────────────────────────── */}
-        <motion.div initial={{ y: 30, opacity: 0 }} animate={showAnimations ? { y: 0, opacity: 1 } : { y: 30, opacity: 0 }} transition={{ duration: 0.5, delay: 1.3 }}>
+        <motion.div initial={{ y: 30, opacity: 0 }} animate={showAnimations ? { y: 0, opacity: 1 } : { y: 30, opacity: 0 }} transition={{ duration: 0.5, delay: 1.3 }} className="px-4 lg:px-8">
           <DataTable />
         </motion.div>
       </main>

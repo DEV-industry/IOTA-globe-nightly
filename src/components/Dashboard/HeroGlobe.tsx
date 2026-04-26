@@ -44,9 +44,9 @@ export function HeroGlobe({ validators, onReady }: HeroGlobeProps) {
 
       <AnimatePresence>
         {selectedValidator && (
-          <ValidatorModal 
-            validator={selectedValidator} 
-            onClose={() => setSelectedAddress(null)} 
+          <ValidatorModal
+            validator={selectedValidator}
+            onClose={() => setSelectedAddress(null)}
           />
         )}
       </AnimatePresence>

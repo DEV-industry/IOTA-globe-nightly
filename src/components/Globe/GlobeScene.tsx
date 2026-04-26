@@ -32,7 +32,7 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator, onR
   const isHoveringPointRef = useRef(false);
   const dragStartPosRef = useRef({ x: 0, y: 0 });
   const wasDragRef = useRef(false);
-  
+
   const { settings } = useSettings();
 
   // Geocode validators
