@@ -148,19 +148,19 @@ function TransactionsTable({
     <table className="w-full min-w-[640px]">
       <thead className="sticky top-0 z-10 bg-[#0a0a0f]/95 backdrop-blur-xl">
         <tr className="border-b border-iota-border/50">
-          <th className="text-left text-[11px] font-medium uppercase tracking-wider text-iota-muted px-6 py-3">
+          <th className="text-center text-[11px] font-medium uppercase tracking-wider text-iota-muted px-6 py-3">
             Digest
           </th>
-          <th className="text-left text-[11px] font-medium uppercase tracking-wider text-iota-muted px-4 py-3">
+          <th className="text-center text-[11px] font-medium uppercase tracking-wider text-iota-muted px-4 py-3">
             Type
           </th>
-          <th className="text-left text-[11px] font-medium uppercase tracking-wider text-iota-muted px-4 py-3">
+          <th className="text-center text-[11px] font-medium uppercase tracking-wider text-iota-muted px-4 py-3">
             Sender
           </th>
-          <th className="text-right text-[11px] font-medium uppercase tracking-wider text-iota-muted px-4 py-3">
+          <th className="text-center text-[11px] font-medium uppercase tracking-wider text-iota-muted px-4 py-3">
             Gas
           </th>
-          <th className="text-right text-[11px] font-medium uppercase tracking-wider text-iota-muted px-6 py-3">
+          <th className="text-center text-[11px] font-medium uppercase tracking-wider text-iota-muted px-6 py-3">
             Time
           </th>
         </tr>
@@ -190,12 +190,12 @@ function TransactionsTable({
               key={`${tx.digest}-${i}`}
               className="border-b border-iota-border/30 table-row-hover cursor-pointer group"
             >
-              <td className="px-6 py-3">
+              <td className="text-center px-6 py-3">
                 <span className="text-sm text-white font-mono group-hover:text-iota-cyan transition-colors">
                   {truncateAddress(tx.digest, 6)}
                 </span>
               </td>
-              <td className="px-4 py-3">
+              <td className="text-center px-4 py-3">
                 <span
                   className={`text-xs px-2 py-0.5 rounded-full font-medium
                     ${
@@ -207,19 +207,19 @@ function TransactionsTable({
                   {formatKind(tx.kind)}
                 </span>
               </td>
-              <td className="px-4 py-3">
+              <td className="text-center px-4 py-3">
                 <span className="text-sm text-iota-label font-mono">
                   {tx.sender === SYSTEM_SENDER
                     ? '⚙ System'
                     : truncateAddress(tx.sender, 4)}
                 </span>
               </td>
-              <td className="text-right px-4 py-3">
+              <td className="text-center px-4 py-3">
                 <span className="text-sm text-white tabular-nums">
                   {formatGas(tx.gasUsed)}
                 </span>
               </td>
-              <td className="text-right px-6 py-3">
+              <td className="text-center px-6 py-3">
                 <span className="text-sm text-iota-muted tabular-nums">
                   {timeAgo(tx.timestampMs)}
                 </span>
@@ -240,19 +240,19 @@ function CheckpointsTable() {
     <table className="w-full min-w-[640px]">
       <thead className="sticky top-0 z-10 bg-[#0a0a0f]/95 backdrop-blur-xl">
         <tr className="border-b border-iota-border/50">
-          <th className="text-left text-[11px] font-medium uppercase tracking-wider text-iota-muted px-6 py-3">
+          <th className="text-center text-[11px] font-medium uppercase tracking-wider text-iota-muted px-6 py-3">
             Sequence
           </th>
-          <th className="text-left text-[11px] font-medium uppercase tracking-wider text-iota-muted px-4 py-3">
+          <th className="text-center text-[11px] font-medium uppercase tracking-wider text-iota-muted px-4 py-3">
             Digest
           </th>
           <th className="text-center text-[11px] font-medium uppercase tracking-wider text-iota-muted px-4 py-3">
             Epoch
           </th>
-          <th className="text-right text-[11px] font-medium uppercase tracking-wider text-iota-muted px-4 py-3">
+          <th className="text-center text-[11px] font-medium uppercase tracking-wider text-iota-muted px-4 py-3">
             Txns
           </th>
-          <th className="text-right text-[11px] font-medium uppercase tracking-wider text-iota-muted px-6 py-3">
+          <th className="text-center text-[11px] font-medium uppercase tracking-wider text-iota-muted px-6 py-3">
             Time
           </th>
         </tr>
@@ -282,12 +282,12 @@ function CheckpointsTable() {
               key={cp.digest}
               className="border-b border-iota-border/30 table-row-hover cursor-pointer group"
             >
-              <td className="px-6 py-3">
+              <td className="text-center px-6 py-3">
                 <span className="text-sm text-white font-mono tabular-nums group-hover:text-iota-cyan transition-colors">
                   #{cp.sequenceNumber}
                 </span>
               </td>
-              <td className="px-4 py-3">
+              <td className="text-center px-4 py-3">
                 <span className="text-sm text-iota-label font-mono">
                   {truncateAddress(cp.digest, 6)}
                 </span>
@@ -297,12 +297,12 @@ function CheckpointsTable() {
                   {cp.epoch}
                 </span>
               </td>
-              <td className="text-right px-4 py-3">
+              <td className="text-center px-4 py-3">
                 <span className="text-sm text-white tabular-nums">
                   {cp.transactions?.length ?? 0}
                 </span>
               </td>
-              <td className="text-right px-6 py-3">
+              <td className="text-center px-6 py-3">
                 <span className="text-sm text-iota-muted tabular-nums">
                   {timeAgo(cp.timestampMs)}
                 </span>
@@ -329,19 +329,19 @@ function ValidatorsTable() {
     <table className="w-full min-w-[640px]">
       <thead className="sticky top-0 z-10 bg-[#0a0a0f]/95 backdrop-blur-xl">
         <tr className="border-b border-iota-border/50">
-          <th className="text-left text-[11px] font-medium uppercase tracking-wider text-iota-muted px-6 py-3">
+          <th className="text-center text-[11px] font-medium uppercase tracking-wider text-iota-muted px-6 py-3">
             Name
           </th>
-          <th className="text-right text-[11px] font-medium uppercase tracking-wider text-iota-muted px-4 py-3">
+          <th className="text-center text-[11px] font-medium uppercase tracking-wider text-iota-muted px-4 py-3">
             Stake
           </th>
-          <th className="text-right text-[11px] font-medium uppercase tracking-wider text-iota-muted px-4 py-3">
+          <th className="text-center text-[11px] font-medium uppercase tracking-wider text-iota-muted px-4 py-3">
             Voting Power
           </th>
-          <th className="text-right text-[11px] font-medium uppercase tracking-wider text-iota-muted px-4 py-3">
+          <th className="text-center text-[11px] font-medium uppercase tracking-wider text-iota-muted px-4 py-3">
             APY
           </th>
-          <th className="text-right text-[11px] font-medium uppercase tracking-wider text-iota-muted px-6 py-3">
+          <th className="text-center text-[11px] font-medium uppercase tracking-wider text-iota-muted px-6 py-3">
             Commission
           </th>
         </tr>
@@ -356,8 +356,8 @@ function ValidatorsTable() {
               key={val.iotaAddress}
               className="border-b border-iota-border/30 table-row-hover cursor-pointer group"
             >
-              <td className="px-6 py-3">
-                <div className="flex items-center gap-3">
+              <td className="text-center px-6 py-3">
+                <div className="flex items-center justify-center gap-3">
                   <img
                     src={val.imageUrl || '/default-avatar.png'}
                     alt={val.name}
@@ -371,22 +371,22 @@ function ValidatorsTable() {
                   </span>
                 </div>
               </td>
-              <td className="text-right px-4 py-3">
+              <td className="text-center px-4 py-3">
                 <span className="text-sm text-white tabular-nums">
                   {formatStakeCompact(val.stakingPoolIotaBalance)} IOTA
                 </span>
               </td>
-              <td className="text-right px-4 py-3">
+              <td className="text-center px-4 py-3">
                 <span className="text-sm text-white tabular-nums">
                   {(Number(val.votingPower) / 100).toFixed(2)}%
                 </span>
               </td>
-              <td className="text-right px-4 py-3">
+              <td className="text-center px-4 py-3">
                 <span className="text-sm text-emerald-400 tabular-nums">
                   {val.apy > 0 ? `${val.apy.toFixed(2)}%` : '--'}
                 </span>
               </td>
-              <td className="text-right px-6 py-3">
+              <td className="text-center px-6 py-3">
                 <span className="text-sm text-iota-muted tabular-nums">
                   {(Number(val.commissionRate) / 100).toFixed(2)}%
                 </span>
