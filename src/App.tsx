@@ -31,6 +31,9 @@ const queryClient = new QueryClient({
   },
 });
 
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+
 function AppContent() {
   const {
     validators,
@@ -42,20 +45,34 @@ function AppContent() {
     isLoading,
   } = useValidators();
 
-  if (isLoading) {
-    return <GlobalLoader />;
-  }
+  const [isGlobeReady, setIsGlobeReady] = useState(false);
+  const [showAnimations, setShowAnimations] = useState(false);
+
+  // When isLoading is false AND globe is ready, trigger animations
+  useEffect(() => {
+    if (!isLoading && isGlobeReady) {
+      // Small delay to ensure loader has started fading out
+      const t = setTimeout(() => setShowAnimations(true), 100);
+      return () => clearTimeout(t);
+    }
+  }, [isLoading, isGlobeReady]);
+
+  const isFullyLoaded = !isLoading && isGlobeReady;
 
   return (
     <div className="min-h-screen bg-[#000] text-white relative">
+      <AnimatePresence>
+        {!isFullyLoaded && <GlobalLoader />}
+      </AnimatePresence>
+
       <StarsBackground />
-      <Header />
+      <Header showAnimations={showAnimations} />
 
       <main className="max-w-[1400px] mx-auto px-4 lg:px-8 pt-20 pb-8">
         {/* ─── Top Globe Section ──────────────────────────── */}
-        <div className=" w-full -mx-4 px-4 lg:mx-0 lg:px-0">
+        <div className={`w-full -mx-4 px-4 lg:mx-0 lg:px-0 transition-opacity duration-1000 ${isFullyLoaded ? 'opacity-100' : 'opacity-0'}`}>
           <ErrorBoundary>
-            <HeroGlobe validators={validators} />
+            <HeroGlobe validators={validators} onReady={() => setIsGlobeReady(true)} />
           </ErrorBoundary>
         </div>
 
@@ -63,34 +80,49 @@ function AppContent() {
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 max-w-5xl mx-auto gap-4 mb-6 -mt-[5vh]">
           {/* Column 1: Network Activity + Overlays */}
           <div className="flex flex-col gap-3">
-            <EpochOverlay
-              epoch={epoch}
-              epochStartTimestampMs={data?.epochStartTimestampMs}
-              epochDurationMs={data?.epochDurationMs}
-              validators={validators}
-            />
+            <motion.div initial={{ y: 30, opacity: 0 }} animate={showAnimations ? { y: 0, opacity: 1 } : { y: 30, opacity: 0 }} transition={{ duration: 0.5, delay: 0.4 }}>
+              <EpochOverlay
+                epoch={epoch}
+                epochStartTimestampMs={data?.epochStartTimestampMs}
+                epochDurationMs={data?.epochDurationMs}
+                validators={validators}
+              />
+            </motion.div>
 
-            <NetworkActivityCard
-              activeValidatorCount={activeValidatorCount}
-              totalStake={totalStake}
-              iotaTotalSupply={iotaTotalSupply}
-              referenceGasPrice={data?.referenceGasPrice}
-            />
+            <motion.div initial={{ y: 30, opacity: 0 }} animate={showAnimations ? { y: 0, opacity: 1 } : { y: 30, opacity: 0 }} transition={{ duration: 0.5, delay: 0.5 }}>
+              <NetworkActivityCard
+                activeValidatorCount={activeValidatorCount}
+                totalStake={totalStake}
+                iotaTotalSupply={iotaTotalSupply}
+                referenceGasPrice={data?.referenceGasPrice}
+              />
+            </motion.div>
 
-            <PriceOverlay />
+            <motion.div initial={{ y: 30, opacity: 0 }} animate={showAnimations ? { y: 0, opacity: 1 } : { y: 30, opacity: 0 }} transition={{ duration: 0.5, delay: 0.6 }}>
+              <PriceOverlay />
+            </motion.div>
 
-            <TopValidatorsCard />
+            <motion.div initial={{ y: 30, opacity: 0 }} animate={showAnimations ? { y: 0, opacity: 1 } : { y: 30, opacity: 0 }} transition={{ duration: 0.5, delay: 0.7 }}>
+              <TopValidatorsCard />
+            </motion.div>
           </div>
 
           {/* Column 2: Live TPS + Transaction Blocks */}
           <div className="flex flex-col gap-3">
-            <LiveTpsCard />
-            <TransactionBlocksCard />
+            <motion.div initial={{ y: 30, opacity: 0 }} animate={showAnimations ? { y: 0, opacity: 1 } : { y: 30, opacity: 0 }} transition={{ duration: 0.5, delay: 0.8 }}>
+              <LiveTpsCard />
+            </motion.div>
+            
+            <motion.div initial={{ y: 30, opacity: 0 }} animate={showAnimations ? { y: 0, opacity: 1 } : { y: 30, opacity: 0 }} transition={{ duration: 0.5, delay: 0.9 }}>
+              <TransactionBlocksCard />
+            </motion.div>
           </div>
         </div>
 
         {/* ─── Data Table Section ───────────────────────────── */}
-        <DataTable />
+        <motion.div initial={{ y: 30, opacity: 0 }} animate={showAnimations ? { y: 0, opacity: 1 } : { y: 30, opacity: 0 }} transition={{ duration: 0.5, delay: 1.0 }}>
+          <DataTable />
+        </motion.div>
       </main>
     </div>
   );
