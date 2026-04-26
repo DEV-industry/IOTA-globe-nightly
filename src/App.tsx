@@ -15,6 +15,7 @@ import { TransactionBlocksCard } from './components/Dashboard/TransactionBlocksC
 import { HeroGlobe } from './components/Dashboard/HeroGlobe';
 import { EpochOverlay } from './components/Dashboard/EpochOverlay';
 import { PriceOverlay } from './components/Dashboard/PriceOverlay';
+import { TopValidatorsCard } from './components/Dashboard/TopValidatorsCard';
 import { DataTable } from './components/Dashboard/DataTable';
 import { ErrorBoundary } from './components/UI/ErrorBoundary';
 import { StarsBackground } from './components/UI/StarsBackground';
@@ -76,6 +77,8 @@ function AppContent() {
             />
 
             <PriceOverlay />
+
+            <TopValidatorsCard />
           </div>
 
           {/* Column 2: Transaction Blocks */}
