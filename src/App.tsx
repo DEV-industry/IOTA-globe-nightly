@@ -89,10 +89,14 @@ function AppContent() {
   );
 }
 
+import { SettingsProvider } from './context/SettingsContext';
+
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AppContent />
+      <SettingsProvider>
+        <AppContent />
+      </SettingsProvider>
     </QueryClientProvider>
   );
 }
