@@ -6,6 +6,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { IotaLogo } from '../UI/IotaLogo';
+import { SearchBar } from '../UI/SearchBar';
 import { useSettings } from '../../context/SettingsContext';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -14,7 +15,6 @@ interface HeaderProps {
 }
 
 export function Header({ showAnimations = true }: HeaderProps) {
-  const [searchValue, setSearchValue] = useState('');
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const settingsRef = useRef<HTMLDivElement>(null);
@@ -64,34 +64,7 @@ export function Header({ showAnimations = true }: HeaderProps) {
 
         {/* Search Bar (centered) */}
         <div className="hidden sm:flex flex-1 max-w-xl mx-6 lg:mx-12">
-          <div className="relative w-full">
-            <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-              <svg
-                className="w-4 h-4 text-iota-muted"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-            </div>
-            <input
-              id="explorer-search"
-              type="text"
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
-              placeholder="Search for Addresses / Objects / Transactions"
-              className="w-full h-10 pl-10 pr-4 bg-iota-card/60 border border-iota-border rounded-lg
-                         text-sm text-white placeholder:text-iota-muted
-                         focus:outline-none focus:border-iota-blue/50 focus:ring-1 focus:ring-iota-blue/20
-                         transition-colors"
-            />
-          </div>
+          <SearchBar />
         </div>
 
         {/* Right Actions */}
