@@ -33,6 +33,9 @@ export function useValidators() {
     epoch: query.data?.epoch,
     totalStake: query.data?.totalStake,
     iotaTotalSupply: query.data?.iotaTotalSupply,
+    referenceGasPrice: query.data?.referenceGasPrice,
+    storageFundTotalObjectStorageRebates: query.data?.storageFundTotalObjectStorageRebates,
+    storageFundNonRefundableBalance: query.data?.storageFundNonRefundableBalance,
     activeValidatorCount: query.data?.activeValidatorCount ?? 0,
 
     /** Query state */

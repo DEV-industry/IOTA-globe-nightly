@@ -254,6 +254,8 @@ app.get('/api/validators', async (_req, res) => {
       epochDurationMs: systemState?.epochDurationMs,
       referenceGasPrice: systemState?.referenceGasPrice,
       iotaTotalSupply: systemState?.iotaTotalSupply,
+      storageFundTotalObjectStorageRebates: systemState?.storageFundTotalObjectStorageRebates,
+      storageFundNonRefundableBalance: systemState?.storageFundNonRefundableBalance,
       activeValidatorCount: validators.length,
       validators,
     });

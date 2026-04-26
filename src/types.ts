@@ -49,6 +49,8 @@ export interface ValidatorsResponse {
   iotaTotalSupply: string;
   activeValidatorCount: number;
   validators: Validator[];
+  storageFundTotalObjectStorageRebates?: string;
+  storageFundNonRefundableBalance?: string;
 }
 
 // ─── Generic JSON-RPC proxy request body ────────────────────────
