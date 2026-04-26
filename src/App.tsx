@@ -90,7 +90,7 @@ function AppContent() {
         </div>
 
         {/* ─── Data Table Section ───────────────────────────── */}
-        <DataTable validators={validators} />
+        <DataTable />
       </main>
     </div>
   );
