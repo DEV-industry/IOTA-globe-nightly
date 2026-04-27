@@ -101,3 +101,20 @@ body {
 .table-row-hover:hover {
   background-color: rgba(30, 41, 59, 0.5);
 }
+
+/* ─── Recharts focus outline fix ───────────────────── */
+.recharts-pie,
+.recharts-pie-sector,
+.recharts-sector,
+.recharts-surface,
+.recharts-wrapper {
+  outline: none !important;
+}
+.recharts-sector:focus,
+.recharts-pie-sector:focus {
+  outline: none !important;
+}
+.recharts-sector,
+.recharts-pie-sector {
+  cursor: default !important;
+}
