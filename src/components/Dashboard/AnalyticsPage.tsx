@@ -31,6 +31,18 @@ const tooltipStyle = {
 const tooltipLabel = { color: '#6b7280', fontSize: 11, marginBottom: 4 };
 const axisTickStyle = { fill: '#4b5563', fontSize: 11, fontFamily: 'Inter' };
 
+function formatTimeTick(v: number | string) {
+  if (typeof v === 'string') return v;
+  const d = new Date(v);
+  return `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
+}
+
+function formatTimeLabel(v: number | string) {
+  if (typeof v === 'string') return v;
+  const d = new Date(v);
+  return `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}.${String(d.getMilliseconds()).padStart(3, '0')}`;
+}
+
 // ─── Sub-components ─────────────────────────────────────────────────────────────
 
 function GlassCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
@@ -259,43 +271,45 @@ export function AnalyticsPage() {
           </div>
         </GlassCard>
 
-        {/* ── Block Performance ──────────────────────────────── */}
-        <GlassCard className="mb-6">
+        {/* ── Block Performance Header ───────────────────────── */}
+        <div className="mb-4 mt-10">
           <SectionTitle title="Block Performance" subtitle="Block production timing and network throughput" />
-          <div className="bg-black/30 border border-white/[0.06] rounded-xl p-4 mt-4 relative">
-            {analyticsLoading && <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/50 backdrop-blur-sm rounded-xl"><span className="text-sm text-iota-muted">Loading live data...</span></div>}
-            <ChartLabel title="Block Time" sub="live window (ms)" legend={[{ label: 'Block Time', color: '#4b5563' }, { label: 'Moving Avg', color: '#7c3aed' }]} />
-            <ResponsiveContainer width="100%" height={300}>
-              <ComposedChart data={analyticsData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
-                <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
-                <XAxis dataKey="time" axisLine={false} tickLine={false} tick={axisTickStyle} interval="preserveStartEnd" minTickGap={30} />
-                <YAxis axisLine={false} tickLine={false} tick={axisTickStyle} tickFormatter={(v: number) => `${v} ms`} width={60} domain={['auto', 'auto']} />
-                <Tooltip contentStyle={tooltipStyle} labelStyle={tooltipLabel} />
-                <Bar dataKey="blockTime" name="Block Time" fill="#374151" radius={[2, 2, 0, 0]} barSize={8} />
-                <Line dataKey="movingAvg" name="Moving Avg" stroke="#7c3aed" strokeWidth={2} dot={false} isAnimationActive={false} />
-              </ComposedChart>
-            </ResponsiveContainer>
-          </div>
+        </div>
+
+        <GlassCard className="mb-6 relative">
+          {analyticsLoading && <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/50 backdrop-blur-sm rounded-2xl"><span className="text-sm text-iota-muted">Loading live data...</span></div>}
+          <ChartLabel title="Block Time" sub="live window (ms)" legend={[{ label: 'Block Time', color: '#4b5563' }, { label: 'Moving Avg', color: '#7c3aed' }]} />
+          <ResponsiveContainer width="100%" height={300}>
+            <ComposedChart data={analyticsData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
+              <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
+              <XAxis dataKey="timestamp" axisLine={false} tickLine={false} tick={axisTickStyle} interval="preserveStartEnd" minTickGap={30} tickFormatter={formatTimeTick} />
+              <YAxis axisLine={false} tickLine={false} tick={axisTickStyle} tickFormatter={(v: number) => `${v} ms`} width={60} domain={['auto', 'auto']} />
+              <Tooltip contentStyle={tooltipStyle} labelStyle={tooltipLabel} labelFormatter={formatTimeLabel} />
+              <Bar dataKey="blockTime" name="Block Time" fill="#374151" radius={[2, 2, 0, 0]} barSize={8} />
+              <Line dataKey="movingAvg" name="Moving Avg" stroke="#7c3aed" strokeWidth={2} dot={false} isAnimationActive={false} />
+            </ComposedChart>
+          </ResponsiveContainer>
         </GlassCard>
 
-        {/* ── Transaction Analytics ──────────────────────────── */}
-        <GlassCard className="mb-6">
+        {/* ── Transaction Analytics Header ───────────────────── */}
+        <div className="mb-4 mt-10">
           <SectionTitle title="Transaction Analytics" subtitle="Transaction volume, throughput, and fee dynamics" />
-          <div className="bg-black/30 border border-white/[0.06] rounded-xl p-4 mt-4 relative">
-            {analyticsLoading && <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/50 backdrop-blur-sm rounded-xl"><span className="text-sm text-iota-muted">Loading live data...</span></div>}
-            <ChartLabel title="Transaction Metrics" sub="TPS & Transaction Count (live)" legend={[{ label: 'TPS', color: '#4b5563' }, { label: 'Transaction Count', color: '#7c3aed' }]} />
-            <ResponsiveContainer width="100%" height={300}>
-              <ComposedChart data={analyticsData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
-                <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
-                <XAxis dataKey="time" axisLine={false} tickLine={false} tick={axisTickStyle} interval="preserveStartEnd" minTickGap={30} />
-                <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={axisTickStyle} width={45} />
-                <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={axisTickStyle} width={40} />
-                <Tooltip contentStyle={tooltipStyle} labelStyle={tooltipLabel} />
-                <Bar yAxisId="left" dataKey="tps" name="TPS" fill="#374151" radius={[2, 2, 0, 0]} barSize={8} />
-                <Line yAxisId="right" dataKey="txCount" name="Transaction Count" stroke="#7c3aed" strokeWidth={2} dot={false} isAnimationActive={false} />
-              </ComposedChart>
-            </ResponsiveContainer>
-          </div>
+        </div>
+
+        <GlassCard className="mb-6 relative">
+          {analyticsLoading && <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/50 backdrop-blur-sm rounded-2xl"><span className="text-sm text-iota-muted">Loading live data...</span></div>}
+          <ChartLabel title="Transaction Metrics" sub="TPS & Transaction Count (live)" legend={[{ label: 'TPS', color: '#4b5563' }, { label: 'Transaction Count', color: '#7c3aed' }]} />
+          <ResponsiveContainer width="100%" height={300}>
+            <ComposedChart data={analyticsData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
+              <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
+              <XAxis dataKey="timestamp" axisLine={false} tickLine={false} tick={axisTickStyle} interval="preserveStartEnd" minTickGap={30} tickFormatter={formatTimeTick} />
+              <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={axisTickStyle} width={45} />
+              <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={axisTickStyle} width={40} />
+              <Tooltip contentStyle={tooltipStyle} labelStyle={tooltipLabel} labelFormatter={formatTimeLabel} />
+              <Bar yAxisId="left" dataKey="tps" name="TPS" fill="#374151" radius={[2, 2, 0, 0]} barSize={8} />
+              <Line yAxisId="right" dataKey="txCount" name="Transaction Count" stroke="#7c3aed" strokeWidth={2} dot={false} isAnimationActive={false} />
+            </ComposedChart>
+          </ResponsiveContainer>
         </GlassCard>
 
         {/* ── Fee Charts (2-col grid) ────────────────────────── */}
@@ -306,9 +320,9 @@ export function AnalyticsPage() {
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={analyticsData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
                 <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
-                <XAxis dataKey="time" axisLine={false} tickLine={false} tick={axisTickStyle} interval="preserveStartEnd" minTickGap={30} />
+                <XAxis dataKey="timestamp" axisLine={false} tickLine={false} tick={axisTickStyle} interval="preserveStartEnd" minTickGap={30} tickFormatter={formatTimeTick} />
                 <YAxis axisLine={false} tickLine={false} tick={axisTickStyle} width={50} tickFormatter={(v: number) => v.toFixed(3)} />
-                <Tooltip contentStyle={tooltipStyle} labelStyle={tooltipLabel} />
+                <Tooltip contentStyle={tooltipStyle} labelStyle={tooltipLabel} labelFormatter={formatTimeLabel} />
                 <Bar dataKey="baseFee" name="Base Fee" stackId="fee" fill="#374151" radius={[0, 0, 0, 0]} barSize={8} />
                 <Bar dataKey="priorityFee" name="Priority Fee" stackId="fee" fill="#7c3aed" radius={[2, 2, 0, 0]} barSize={8} />
               </BarChart>
@@ -321,9 +335,9 @@ export function AnalyticsPage() {
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={analyticsData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
                 <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
-                <XAxis dataKey="time" axisLine={false} tickLine={false} tick={axisTickStyle} interval="preserveStartEnd" minTickGap={30} />
+                <XAxis dataKey="timestamp" axisLine={false} tickLine={false} tick={axisTickStyle} interval="preserveStartEnd" minTickGap={30} tickFormatter={formatTimeTick} />
                 <YAxis axisLine={false} tickLine={false} tick={axisTickStyle} width={50} tickFormatter={(v: number) => v.toFixed(3)} />
-                <Tooltip contentStyle={tooltipStyle} labelStyle={tooltipLabel} />
+                <Tooltip contentStyle={tooltipStyle} labelStyle={tooltipLabel} labelFormatter={formatTimeLabel} />
                 <Bar dataKey="medianBase" name="Base Fee" stackId="mfee" fill="#374151" radius={[0, 0, 0, 0]} barSize={8} />
                 <Bar dataKey="medianPriority" name="Priority Fee" stackId="mfee" fill="#7c3aed" radius={[2, 2, 0, 0]} barSize={8} />
               </BarChart>

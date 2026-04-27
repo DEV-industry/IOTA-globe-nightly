@@ -6,6 +6,7 @@ const REFETCH_INTERVAL = 5_000; // update every 5s
 const HISTORY_LIMIT = 50; // fetch last 50 blocks
 
 export interface AnalyticsData {
+  timestamp: number;
   time: string; // HH:MM:SS
   blockTime: number; // ms
   movingAvg: number; // ms
@@ -137,6 +138,7 @@ export function useAnalyticsHistory() {
         const time = `${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
 
         results.push({
+          timestamp: currTime,
           time,
           blockTime,
           movingAvg,
