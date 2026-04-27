@@ -1,76 +1,21 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import {
   BarChart, Bar, ComposedChart, Line,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell,
 } from 'recharts';
+import { useValidators } from '../../hooks/useValidators';
+import { useGeocode } from '../../hooks/useGeocode';
+import { formatStakeCompact, formatCompactNumber } from '../../utils/formatters';
+import { useAnalyticsHistory } from '../../hooks/useAnalyticsHistory';
 
 // ─── Time Range ─────────────────────────────────────────────────────────────────
 
-type TimeRange = '60min' | '24h' | '7d' | '30d';
-const TIME_LABELS: Record<TimeRange, string> = {
-  '60min': '60 min', '24h': '24 hours', '7d': '7 days', '30d': '30 days',
-};
 
-// ─── Mock Data Generators ───────────────────────────────────────────────────────
 
-function seed(i: number) { return Math.abs(Math.sin(i * 127.1) * 43758.5453) % 1; }
+// Mock data generators removed
 
-function genBlockTimeData(count = 60) {
-  return Array.from({ length: count }, (_, i) => {
-    const min = Math.floor(i / 1);
-    const h = 16 + Math.floor(min / 60);
-    const m = min % 60;
-    const time = `${h}:${String(m).padStart(2, '0')}`;
-    const blockTime = 390 + seed(i) * 20 - 5;
-    const movingAvg = 395 + Math.sin(i * 0.08) * 3;
-    return { time, blockTime: Math.round(blockTime), movingAvg: Math.round(movingAvg * 10) / 10 };
-  });
-}
-
-function genTxMetricsData(count = 60) {
-  return Array.from({ length: count }, (_, i) => {
-    const min = Math.floor(i);
-    const h = 16 + Math.floor(min / 60);
-    const m = 28 + (min % 60);
-    const hh = h + Math.floor(m / 60);
-    const mm = m % 60;
-    const time = `${hh}:${String(mm).padStart(2, '0')}`;
-    const tps = 80 + seed(i + 10) * 150 + (seed(i + 20) > 0.85 ? 300 : 0);
-    const txCount = 1000 + seed(i + 30) * 4000 + (seed(i + 40) > 0.8 ? 2000 : 0);
-    return { time, tps: Math.round(tps), txCount: Math.round(txCount) };
-  });
-}
-
-function genFeeData(count = 60) {
-  return Array.from({ length: count }, (_, i) => {
-    const min = Math.floor(i);
-    const h = 16 + Math.floor(min / 60);
-    const m = 28 + (min % 60);
-    const hh = h + Math.floor(m / 60);
-    const mm = m % 60;
-    const time = `${hh}:${String(mm).padStart(2, '0')}`;
-    const baseFee = 50 + seed(i + 50) * 120;
-    const priorityFee = 20 + seed(i + 60) * 80 + (seed(i + 70) > 0.9 ? 400 : 0);
-    const medianBase = 0.015 + seed(i + 80) * 0.02;
-    const medianPriority = 0.005 + seed(i + 90) * 0.015;
-    return {
-      time, baseFee: Math.round(baseFee), priorityFee: Math.round(priorityFee),
-      medianBase: Math.round(medianBase * 1000) / 1000,
-      medianPriority: Math.round(medianPriority * 1000) / 1000,
-    };
-  });
-}
-
-const DONUT_DATA = [
-  { name: 'United States', value: 23.4, stake: '3.4B', color: '#22c55e' },
-  { name: 'Germany', value: 16.2, stake: '2.4B', color: '#3b82f6' },
-  { name: 'The Netherlands', value: 12.7, stake: '1.9B', color: '#f59e0b' },
-  { name: 'Singapore', value: 5.31, stake: '776.4M', color: '#6366f1' },
-  { name: 'Japan', value: 4.8, stake: '701M', color: '#ec4899' },
-  { name: 'Finland', value: 4.2, stake: '613M', color: '#14b8a6' },
-  { name: 'Others', value: 33.39, stake: '4.9B', color: '#374151' },
-];
+// No static DONUT_DATA, it's calculated in the component.
 
 // ─── Shared tooltip ─────────────────────────────────────────────────────────────
 
@@ -151,11 +96,54 @@ function ChartLabel({ title, sub, legend }: { title: string; sub?: string; legen
 // ─── Main Page ──────────────────────────────────────────────────────────────────
 
 export function AnalyticsPage() {
-  const [range, setRange] = useState<TimeRange>('60min');
 
-  const blockTimeData = useMemo(() => genBlockTimeData(), []);
-  const txMetrics = useMemo(() => genTxMetricsData(), []);
-  const feeData = useMemo(() => genFeeData(), []);
+  const { validators, totalStake, activeValidatorCount } = useValidators();
+  const validatorsWithGeo = useGeocode(validators);
+  const { data: analyticsData = [], isLoading: analyticsLoading } = useAnalyticsHistory();
+
+  const lastAnalyticsItem = analyticsData.length > 0 ? analyticsData[analyticsData.length - 1] : null;
+
+  const donutData = useMemo(() => {
+    if (!validatorsWithGeo.length || !totalStake) return [];
+    
+    const countryMap = new Map<string, number>();
+    let totalVotingPower = 0;
+
+    validatorsWithGeo.forEach(v => {
+      const country = v.country || 'Others';
+      const vp = Number(v.votingPower) || 0;
+      totalVotingPower += vp;
+      countryMap.set(country, (countryMap.get(country) || 0) + vp);
+    });
+
+    const rawData = Array.from(countryMap.entries()).map(([name, power]) => ({
+      name,
+      power,
+      value: totalVotingPower > 0 ? (power / totalVotingPower) * 100 : 0
+    })).sort((a, b) => b.power - a.power);
+
+    // Take top 6, rest goes to Others
+    const topCountries = rawData.slice(0, 6);
+    const others = rawData.slice(6);
+    
+    const othersPower = others.reduce((sum, item) => sum + item.power, 0);
+    const othersValue = others.reduce((sum, item) => sum + item.value, 0);
+
+    if (othersPower > 0) {
+      topCountries.push({ name: 'Others', power: othersPower, value: othersValue });
+    }
+
+    const colors = ['#22c55e', '#3b82f6', '#f59e0b', '#6366f1', '#ec4899', '#14b8a6', '#374151'];
+    
+    return topCountries.map((item, idx) => ({
+      name: item.name,
+      value: Number(item.value.toFixed(2)),
+      stake: formatStakeCompact(item.power.toString()),
+      color: colors[idx % colors.length]
+    }));
+  }, [validatorsWithGeo, totalStake]);
+
+  const topCountry = donutData[0];
 
   return (
     <div className="min-h-screen bg-[#000] text-white">
@@ -163,20 +151,14 @@ export function AnalyticsPage() {
 
         {/* ── Time Range Pills ───────────────────────────────── */}
         <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-1 bg-black/40 backdrop-blur-md border border-white/10 rounded-full p-1">
-            {(Object.keys(TIME_LABELS) as TimeRange[]).map(k => (
-              <button
-                key={k}
-                onClick={() => setRange(k)}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
-                  range === k
-                    ? 'bg-[#7c3aed] text-white shadow-lg shadow-purple-500/20'
-                    : 'text-iota-muted hover:text-white'
-                }`}
-              >
-                {TIME_LABELS[k]}
-              </button>
-            ))}
+          <div className="flex items-center gap-1 bg-black/40 backdrop-blur-md border border-white/10 rounded-full p-1 relative group">
+            <button className="px-4 py-1.5 rounded-full text-sm font-medium transition-all bg-[#7c3aed] text-white shadow-lg shadow-purple-500/20">
+              Live Window (Last ~50 blocks)
+            </button>
+            <div className="absolute top-full left-0 mt-2 w-64 p-3 bg-black/90 border border-white/10 rounded-xl text-xs text-iota-muted opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+              Wizualizacja na żywo ostatnich bloków pobranych z sieci IOTA. 
+              Pobieranie pełnej historii bez dedykowanego indexera backendowego jest zablokowane ze względów wydajnościowych.
+            </div>
           </div>
         </div>
 
@@ -184,13 +166,33 @@ export function AnalyticsPage() {
         <GlassCard className="mb-6">
           <div className="flex items-baseline gap-2 mb-4">
             <h3 className="text-base font-bold text-white">Block Overview</h3>
-            <span className="text-xs text-iota-muted">· last {TIME_LABELS[range]}</span>
+            <span className="text-xs text-iota-muted">· Live recent trend</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            <StatMiniCard label="Highest fee block" value="391.74" unit="IOTA" change={19.9} />
-            <StatMiniCard label="Total transactions" value="1,786,423" unit="txs" change={5.5} />
-            <StatMiniCard label="Avg. block fullness" value="3" unit="%" change={-5.7} />
-            <StatMiniCard label="Total tips paid" value="48,799.96" unit="IOTA" change={55.3} />
+            <StatMiniCard 
+              label="Highest fee block" 
+              value={lastAnalyticsItem ? lastAnalyticsItem.highestFeeBlock.toFixed(4) : "0"} 
+              unit="IOTA" 
+              change={0} 
+            />
+            <StatMiniCard 
+              label="Total transactions" 
+              value={lastAnalyticsItem ? formatCompactNumber(lastAnalyticsItem.totalTxs) : "0"} 
+              unit="txs" 
+              change={0} 
+            />
+            <StatMiniCard 
+              label="Avg. block fullness" 
+              value={lastAnalyticsItem ? lastAnalyticsItem.avgFullness.toString() : "0"} 
+              unit="%" 
+              change={0} 
+            />
+            <StatMiniCard 
+              label="Total tips paid" 
+              value={lastAnalyticsItem ? lastAnalyticsItem.totalTips.toFixed(4) : "0"} 
+              unit="IOTA" 
+              change={0} 
+            />
           </div>
         </GlassCard>
 
@@ -216,15 +218,20 @@ export function AnalyticsPage() {
               <div className="relative">
                 <ResponsiveContainer width={280} height={280}>
                   <PieChart>
-                    <Pie data={DONUT_DATA} dataKey="value" cx="50%" cy="50%" innerRadius={80} outerRadius={120} paddingAngle={2} strokeWidth={0}>
-                      {DONUT_DATA.map((d, i) => <Cell key={i} fill={d.color} />)}
+                    <Pie data={donutData} dataKey="value" cx="50%" cy="50%" innerRadius={80} outerRadius={120} paddingAngle={2} strokeWidth={0}>
+                      {donutData.map((d, i) => <Cell key={i} fill={d.color} />)}
                     </Pie>
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-xs text-emerald-400 font-medium">United States</span>
-                  <span className="text-3xl font-bold text-white">23.4%</span>
-                  <span className="text-[10px] text-iota-muted uppercase tracking-widest font-bold">of stake</span>
+                  {topCountry && (
+                    <>
+                      <span className="text-xs text-emerald-400 font-medium" style={{ color: topCountry.color }}>{topCountry.name}</span>
+                      <span className="text-3xl font-bold text-white">{topCountry.value}%</span>
+                    </>
+                  )}
+                  {!topCountry && <span className="text-sm text-iota-muted">Loading...</span>}
+                  <span className="text-[10px] text-iota-muted uppercase tracking-widest font-bold mt-1">of stake</span>
                 </div>
               </div>
             </div>
@@ -232,7 +239,11 @@ export function AnalyticsPage() {
             {/* Stats + List */}
             <div>
               <div className="grid grid-cols-3 gap-3 mb-5">
-                {[{ l: 'Groups', v: '30' }, { l: 'Validators', v: '200' }, { l: 'Total Stake', v: '14.6B IOTA' }].map(s => (
+                {[
+                  { l: 'Groups', v: donutData.length > 0 ? (donutData.length - (donutData.find(d => d.name === 'Others') ? 1 : 0)).toString() : '0' }, 
+                  { l: 'Validators', v: activeValidatorCount.toString() }, 
+                  { l: 'Total Stake', v: totalStake ? `${formatStakeCompact(totalStake)} IOTA` : '0 IOTA' }
+                ].map(s => (
                   <div key={s.l} className="bg-black/30 border border-white/[0.06] rounded-xl px-3 py-2.5">
                     <span className="text-[10px] text-iota-muted uppercase tracking-widest font-bold block">{s.l}</span>
                     <span className="text-lg font-bold text-white">{s.v}</span>
@@ -244,7 +255,7 @@ export function AnalyticsPage() {
                 <span className="text-xs text-iota-muted">share by delegated stake</span>
               </div>
               <div className="space-y-2">
-                {DONUT_DATA.filter(d => d.name !== 'Others').map((d, i) => (
+                {donutData.filter(d => d.name !== 'Others').map((d, i) => (
                   <div key={d.name} className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full" style={{ backgroundColor: d.color }} />
@@ -262,16 +273,17 @@ export function AnalyticsPage() {
         {/* ── Block Performance ──────────────────────────────── */}
         <GlassCard className="mb-6">
           <SectionTitle title="Block Performance" subtitle="Block production timing and network throughput" />
-          <div className="bg-black/30 border border-white/[0.06] rounded-xl p-4 mt-4">
-            <ChartLabel title="Block Time" sub={`avg last ${TIME_LABELS[range]} (ms)`} legend={[{ label: 'Block Time', color: '#4b5563' }, { label: 'Moving Avg', color: '#7c3aed' }]} />
+          <div className="bg-black/30 border border-white/[0.06] rounded-xl p-4 mt-4 relative">
+            {analyticsLoading && <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/50 backdrop-blur-sm rounded-xl"><span className="text-sm text-iota-muted">Loading live data...</span></div>}
+            <ChartLabel title="Block Time" sub="live window (ms)" legend={[{ label: 'Block Time', color: '#4b5563' }, { label: 'Moving Avg', color: '#7c3aed' }]} />
             <ResponsiveContainer width="100%" height={300}>
-              <ComposedChart data={blockTimeData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
+              <ComposedChart data={analyticsData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
                 <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
-                <XAxis dataKey="time" axisLine={false} tickLine={false} tick={axisTickStyle} interval={9} />
-                <YAxis domain={[340, 450]} axisLine={false} tickLine={false} tick={axisTickStyle} tickFormatter={(v: number) => `${v} ms`} width={60} />
+                <XAxis dataKey="time" axisLine={false} tickLine={false} tick={axisTickStyle} interval="preserveStartEnd" minTickGap={30} />
+                <YAxis axisLine={false} tickLine={false} tick={axisTickStyle} tickFormatter={(v: number) => `${v} ms`} width={60} domain={['auto', 'auto']} />
                 <Tooltip contentStyle={tooltipStyle} labelStyle={tooltipLabel} />
                 <Bar dataKey="blockTime" name="Block Time" fill="#374151" radius={[2, 2, 0, 0]} barSize={8} />
-                <Line dataKey="movingAvg" name="Moving Avg" stroke="#7c3aed" strokeWidth={2} dot={false} />
+                <Line dataKey="movingAvg" name="Moving Avg" stroke="#7c3aed" strokeWidth={2} dot={false} isAnimationActive={false} />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
@@ -280,31 +292,33 @@ export function AnalyticsPage() {
         {/* ── Transaction Analytics ──────────────────────────── */}
         <GlassCard className="mb-6">
           <SectionTitle title="Transaction Analytics" subtitle="Transaction volume, throughput, and fee dynamics" />
-          <div className="bg-black/30 border border-white/[0.06] rounded-xl p-4 mt-4">
-            <ChartLabel title="Transaction Metrics" sub={`TPS & Transaction Count last ${TIME_LABELS[range]}`} legend={[{ label: 'TPS', color: '#4b5563' }, { label: 'Transaction Count', color: '#7c3aed' }]} />
+          <div className="bg-black/30 border border-white/[0.06] rounded-xl p-4 mt-4 relative">
+            {analyticsLoading && <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/50 backdrop-blur-sm rounded-xl"><span className="text-sm text-iota-muted">Loading live data...</span></div>}
+            <ChartLabel title="Transaction Metrics" sub="TPS & Transaction Count (live)" legend={[{ label: 'TPS', color: '#4b5563' }, { label: 'Transaction Count', color: '#7c3aed' }]} />
             <ResponsiveContainer width="100%" height={300}>
-              <ComposedChart data={txMetrics} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
+              <ComposedChart data={analyticsData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
                 <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
-                <XAxis dataKey="time" axisLine={false} tickLine={false} tick={axisTickStyle} interval={9} />
+                <XAxis dataKey="time" axisLine={false} tickLine={false} tick={axisTickStyle} interval="preserveStartEnd" minTickGap={30} />
                 <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={axisTickStyle} width={45} />
                 <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={axisTickStyle} width={40} />
                 <Tooltip contentStyle={tooltipStyle} labelStyle={tooltipLabel} />
                 <Bar yAxisId="left" dataKey="tps" name="TPS" fill="#374151" radius={[2, 2, 0, 0]} barSize={8} />
-                <Line yAxisId="right" dataKey="txCount" name="Transaction Count" stroke="#7c3aed" strokeWidth={2} dot={false} />
+                <Line yAxisId="right" dataKey="txCount" name="Transaction Count" stroke="#7c3aed" strokeWidth={2} dot={false} isAnimationActive={false} />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
         </GlassCard>
 
         {/* ── Fee Charts (2-col grid) ────────────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 relative">
           <GlassCard>
-            <ChartLabel title="Transaction Fees" sub={`total last ${TIME_LABELS[range]} (IOTA)`} legend={[{ label: 'Base Fee', color: '#4b5563' }, { label: 'Priority Fee', color: '#7c3aed' }]} />
+            {analyticsLoading && <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/50 backdrop-blur-sm rounded-xl"><span className="text-sm text-iota-muted">Loading...</span></div>}
+            <ChartLabel title="Transaction Fees" sub="total per block (IOTA)" legend={[{ label: 'Base Fee', color: '#4b5563' }, { label: 'Priority Fee', color: '#7c3aed' }]} />
             <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={feeData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
+              <BarChart data={analyticsData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
                 <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
-                <XAxis dataKey="time" axisLine={false} tickLine={false} tick={axisTickStyle} interval={9} />
-                <YAxis axisLine={false} tickLine={false} tick={axisTickStyle} width={45} />
+                <XAxis dataKey="time" axisLine={false} tickLine={false} tick={axisTickStyle} interval="preserveStartEnd" minTickGap={30} />
+                <YAxis axisLine={false} tickLine={false} tick={axisTickStyle} width={50} tickFormatter={(v: number) => v.toFixed(3)} />
                 <Tooltip contentStyle={tooltipStyle} labelStyle={tooltipLabel} />
                 <Bar dataKey="baseFee" name="Base Fee" stackId="fee" fill="#374151" radius={[0, 0, 0, 0]} barSize={8} />
                 <Bar dataKey="priorityFee" name="Priority Fee" stackId="fee" fill="#7c3aed" radius={[2, 2, 0, 0]} barSize={8} />
@@ -313,11 +327,12 @@ export function AnalyticsPage() {
           </GlassCard>
 
           <GlassCard>
-            <ChartLabel title="Median Fees" sub={`per block, avg last ${TIME_LABELS[range]} (IOTA)`} legend={[{ label: 'Base Fee', color: '#4b5563' }, { label: 'Priority Fee', color: '#7c3aed' }]} />
+            {analyticsLoading && <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/50 backdrop-blur-sm rounded-xl"><span className="text-sm text-iota-muted">Loading...</span></div>}
+            <ChartLabel title="Median Fees" sub="per block (IOTA)" legend={[{ label: 'Base Fee', color: '#4b5563' }, { label: 'Priority Fee', color: '#7c3aed' }]} />
             <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={feeData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
+              <BarChart data={analyticsData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
                 <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
-                <XAxis dataKey="time" axisLine={false} tickLine={false} tick={axisTickStyle} interval={9} />
+                <XAxis dataKey="time" axisLine={false} tickLine={false} tick={axisTickStyle} interval="preserveStartEnd" minTickGap={30} />
                 <YAxis axisLine={false} tickLine={false} tick={axisTickStyle} width={50} tickFormatter={(v: number) => v.toFixed(3)} />
                 <Tooltip contentStyle={tooltipStyle} labelStyle={tooltipLabel} />
                 <Bar dataKey="medianBase" name="Base Fee" stackId="mfee" fill="#374151" radius={[0, 0, 0, 0]} barSize={8} />

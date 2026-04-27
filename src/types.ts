@@ -32,6 +32,7 @@ export interface ValidatorWithGeo extends Validator {
   lat: number;
   lng: number;
   geoSource: 'lookup' | 'geo-api' | 'fallback';
+  country?: string;
 }
 
 // ─── Stake tier for visual classification ───────────────────────
