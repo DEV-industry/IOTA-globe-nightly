@@ -70,27 +70,14 @@ export function Header({ showAnimations = true }: HeaderProps) {
         {/* Right Actions */}
         <div className="shrink-0 flex items-center gap-3">
           {/* Network Selector */}
-          <button
+          <div
             id="network-selector"
             className="flex items-center gap-2 px-4 py-2 bg-iota-card/60 border border-iota-border rounded-lg
-                       text-sm text-white hover:bg-iota-hover transition-colors"
+                       text-sm text-white"
           >
             <span className="w-2 h-2 rounded-full bg-emerald-400" />
-            <span>Mainnet</span>
-            <svg
-              className="w-3.5 h-3.5 text-iota-muted"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </button>
+            <span className="font-medium">Mainnet</span>
+          </div>
 
           {/* Settings Menu */}
           <div className="relative" ref={settingsRef}>
