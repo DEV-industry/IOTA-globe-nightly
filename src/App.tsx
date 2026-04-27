@@ -9,6 +9,8 @@
  */
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { AnalyticsPage } from './components/Dashboard/AnalyticsPage';
 import { Header } from './components/Dashboard/Header';
 import { NetworkActivityCard } from './components/Dashboard/NetworkActivityCard';
 import { TransactionBlocksCard } from './components/Dashboard/TransactionBlocksCard';
@@ -145,12 +147,27 @@ function AppContent() {
 
 import { SettingsProvider } from './context/SettingsContext';
 
+function ChartsPage() {
+  return (
+    <div className="min-h-screen bg-[#000] text-white relative">
+      <StarsBackground />
+      <Header showAnimations={true} />
+      <AnalyticsPage />
+    </div>
+  );
+}
+
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <SettingsProvider>
-        <AppContent />
-      </SettingsProvider>
-    </QueryClientProvider>
+    <BrowserRouter>
+      <QueryClientProvider client={queryClient}>
+        <SettingsProvider>
+          <Routes>
+            <Route path="/" element={<AppContent />} />
+            <Route path="/charts" element={<ChartsPage />} />
+          </Routes>
+        </SettingsProvider>
+      </QueryClientProvider>
+    </BrowserRouter>
   );
 }
