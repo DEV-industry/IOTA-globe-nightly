@@ -149,18 +149,7 @@ export function AnalyticsPage() {
     <div className="min-h-screen bg-[#000] text-white">
       <div className="max-w-[1400px] mx-auto pt-24 pb-12 px-4 lg:px-8">
 
-        {/* ── Time Range Pills ───────────────────────────────── */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-1 bg-black/40 backdrop-blur-md border border-white/10 rounded-full p-1 relative group">
-            <button className="px-4 py-1.5 rounded-full text-sm font-medium transition-all bg-[#7c3aed] text-white shadow-lg shadow-purple-500/20">
-              Live Window (Last ~50 blocks)
-            </button>
-            <div className="absolute top-full left-0 mt-2 w-64 p-3 bg-black/90 border border-white/10 rounded-xl text-xs text-iota-muted opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-              Wizualizacja na żywo ostatnich bloków pobranych z sieci IOTA. 
-              Pobieranie pełnej historii bez dedykowanego indexera backendowego jest zablokowane ze względów wydajnościowych.
-            </div>
-          </div>
-        </div>
+
 
         {/* ── Block Overview ─────────────────────────────────── */}
         <GlassCard className="mb-6">
