@@ -18,7 +18,7 @@ import { PriceOverlay } from './components/Dashboard/PriceOverlay';
 import { TopValidatorsCard } from './components/Dashboard/TopValidatorsCard';
 import { LiveTpsCard } from './components/Dashboard/LiveTpsCard';
 import { DataTable } from './components/Dashboard/DataTable';
-import { RefGasCard, AvgTxnCard, StorageFundCard } from './components/Dashboard/NetworkEconomicsCard';
+import { RefGasCard, AvgTxnCard, StorageFundCard, TotalStakedCard, NetworkApyCard } from './components/Dashboard/NetworkEconomicsCard';
 import { ErrorBoundary } from './components/UI/ErrorBoundary';
 import { StarsBackground } from './components/UI/StarsBackground';
 import { GlobalLoader } from './components/UI/GlobalLoader';
@@ -125,12 +125,18 @@ function AppContent() {
         </div>
 
         {/* ─── Bottom Economics Row ─────────────────────────── */}
-        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 max-w-5xl mx-auto gap-4 mb-6 px-4 lg:px-8">
+        <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto gap-4 mb-6 px-4 lg:px-8">
           <motion.div initial={{ y: 30, opacity: 0 }} animate={showAnimations ? { y: 0, opacity: 1 } : { y: 30, opacity: 0 }} transition={{ duration: 0.5, delay: 1.1 }}>
             <AvgTxnCard />
           </motion.div>
-          <motion.div initial={{ y: 30, opacity: 0 }} animate={showAnimations ? { y: 0, opacity: 1 } : { y: 30, opacity: 0 }} transition={{ duration: 0.5, delay: 1.2 }}>
+          <motion.div initial={{ y: 30, opacity: 0 }} animate={showAnimations ? { y: 0, opacity: 1 } : { y: 30, opacity: 0 }} transition={{ duration: 0.5, delay: 1.15 }}>
             <StorageFundCard />
+          </motion.div>
+          <motion.div initial={{ y: 30, opacity: 0 }} animate={showAnimations ? { y: 0, opacity: 1 } : { y: 30, opacity: 0 }} transition={{ duration: 0.5, delay: 1.2 }}>
+            <TotalStakedCard />
+          </motion.div>
+          <motion.div initial={{ y: 30, opacity: 0 }} animate={showAnimations ? { y: 0, opacity: 1 } : { y: 30, opacity: 0 }} transition={{ duration: 0.5, delay: 1.25 }}>
+            <NetworkApyCard />
           </motion.div>
         </div>
 

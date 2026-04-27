@@ -96,6 +96,7 @@ export function useRecentTransactions() {
   return {
     transactions: query.data ?? [],
     isLoading: query.isLoading,
+    isRefetching: query.isRefetching,
     isError: query.isError,
     error: query.error,
     dataUpdatedAt: query.dataUpdatedAt,
