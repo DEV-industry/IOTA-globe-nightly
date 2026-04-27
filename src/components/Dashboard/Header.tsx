@@ -7,6 +7,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { IotaLogo } from '../UI/IotaLogo';
 import { SearchBar } from '../UI/SearchBar';
+import { Link, useLocation } from 'react-router-dom';
 import { useSettings } from '../../context/SettingsContext';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -18,6 +19,7 @@ export function Header({ showAnimations = true }: HeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const settingsRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
   
   const { settings, updateSetting } = useSettings();
 
@@ -61,6 +63,30 @@ export function Header({ showAnimations = true }: HeaderProps) {
         <div className="shrink-0">
           <IotaLogo />
         </div>
+
+        {/* Nav Links */}
+        <nav className="hidden sm:flex items-center gap-1 ml-4">
+          <Link
+            to="/"
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              location.pathname === '/'
+                ? 'text-white bg-white/[0.06]'
+                : 'text-iota-muted hover:text-white'
+            }`}
+          >
+            Dashboard
+          </Link>
+          <Link
+            to="/charts"
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              location.pathname === '/charts'
+                ? 'text-white bg-white/[0.06]'
+                : 'text-iota-muted hover:text-white'
+            }`}
+          >
+            Charts
+          </Link>
+        </nav>
 
         {/* Search Bar (centered) */}
         <div className="hidden sm:flex flex-1 max-w-xl mx-6 lg:mx-12">
