@@ -13,9 +13,10 @@ const ALLOWED_METHODS = [
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const origin = req.headers.origin;
+  const host = req.headers['x-forwarded-host'] ?? req.headers.host;
 
   // 1. Zabezpieczenie CORS: Odrzuć żądanie, jeśli pochodzenie (origin) nie jest autoryzowane / puste
-  if (!isAllowedOrigin(origin)) {
+  if (!isAllowedOrigin(origin, host)) {
     return res.status(403).json({ error: 'CORS policy violation' });
   }
   if (origin) {
