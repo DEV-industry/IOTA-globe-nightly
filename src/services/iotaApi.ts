@@ -10,7 +10,73 @@ import type { ValidatorsResponse } from '../types';
 
 // Use proxy base URL from env if set, otherwise fallback to local /api (proxied in dev via Vite)
 const PROXY_BASE_URL = import.meta.env?.VITE_PROXY_BASE_URL ?? '/api';
-const PROXY_API_TOKEN = import.meta.env?.VITE_PROXY_API_TOKEN ?? '';
+const AUTH_REFRESH_SKEW_MS = 15_000;
+
+interface AuthTokenResponse {
+  token: string;
+  expiresAt: number;
+}
+
+let cachedAuth: AuthTokenResponse | null = null;
+let inflightAuth: Promise<AuthTokenResponse> | null = null;
+
+function buildProxyUrl(path: string): string {
+  const base = PROXY_BASE_URL.replace(/\/$/, '');
+  const cleaned = path.replace(/^\//, '');
+  return `${base}/${cleaned}`;
+}
+
+async function fetchAuthToken(): Promise<AuthTokenResponse> {
+  const url = buildProxyUrl('auth');
+  const res = await fetch(url, { cache: 'no-store' });
+  if (!res.ok) {
+    throw new Error(`Failed to fetch proxy auth token: ${res.statusText}`);
+  }
+  const data = (await res.json()) as AuthTokenResponse;
+  if (!data?.token || typeof data.expiresAt !== 'number') {
+    throw new Error('Invalid proxy auth token response');
+  }
+  return data;
+}
+
+async function getAuthToken(): Promise<AuthTokenResponse> {
+  const now = Date.now();
+  if (cachedAuth && cachedAuth.expiresAt - AUTH_REFRESH_SKEW_MS > now) {
+    return cachedAuth;
+  }
+
+  if (!inflightAuth) {
+    inflightAuth = fetchAuthToken()
+      .then((data) => {
+        cachedAuth = data;
+        return data;
+      })
+      .finally(() => {
+        inflightAuth = null;
+      });
+  }
+
+  return inflightAuth;
+}
+
+async function authorizedFetch(
+  url: string,
+  init: RequestInit = {},
+  retry = true,
+): Promise<Response> {
+  const { token } = await getAuthToken();
+  const headers = new Headers(init.headers ?? {});
+  headers.set('x-app-auth', token);
+
+  const response = await fetch(url, { ...init, headers });
+
+  if (retry && (response.status === 401 || response.status === 403)) {
+    cachedAuth = null;
+    return authorizedFetch(url, init, false);
+  }
+
+  return response;
+}
 
 interface JsonRpcResponse<T = unknown> {
   jsonrpc: string;
@@ -27,12 +93,8 @@ interface JsonRpcResponse<T = unknown> {
  * Calls our Vercel Serverless Function `/api/validators` which handles caching.
  */
 export async function fetchValidators(): Promise<ValidatorsResponse> {
-  const url = `${PROXY_BASE_URL.replace(/\/$/, '')}/validators`;
-  const res = await fetch(url, {
-    headers: {
-      'x-app-auth': PROXY_API_TOKEN
-    }
-  });
+  const url = buildProxyUrl('validators');
+  const res = await authorizedFetch(url);
   if (!res.ok) {
     throw new Error(`Failed to fetch validators proxy API: ${res.statusText}`);
   }
@@ -46,12 +108,11 @@ export async function rpcCall<T = unknown>(
   method: string,
   params: unknown[] = [],
 ): Promise<T> {
-  const url = `${PROXY_BASE_URL.replace(/\/$/, '')}/rpc`;
-  const res = await fetch(url, {
+  const url = buildProxyUrl('rpc');
+  const res = await authorizedFetch(url, {
     method: 'POST',
     headers: { 
       'Content-Type': 'application/json',
-      'x-app-auth': PROXY_API_TOKEN 
     },
     body: JSON.stringify({ method, params }),
   });
