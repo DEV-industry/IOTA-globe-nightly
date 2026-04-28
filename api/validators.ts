@@ -1,7 +1,13 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { isAllowedOrigin, isValidAuthToken, checkRateLimit } from './_security.js';
+import {
+  checkRateLimit,
+  getRequestMeta,
+  isAllowedOrigin,
+  verifyAuthToken,
+} from './_security.js';
 
 const IOTA_RPC_URL = 'https://api.mainnet.iota.cafe';
+const RPC_TIMEOUT_MS = 8000;
 
 interface JsonRpcResponse<T = unknown> {
   jsonrpc: string;
@@ -14,7 +20,7 @@ async function jsonRpc<T = unknown>(
   method: string,
   params: unknown[] = [],
 ): Promise<T> {
-  const res = await fetch(IOTA_RPC_URL, {
+  const res = await fetchWithTimeout(IOTA_RPC_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -23,7 +29,7 @@ async function jsonRpc<T = unknown>(
       method,
       params,
     }),
-  });
+  }, RPC_TIMEOUT_MS);
 
   if (!res.ok) {
     throw new Error(`RPC HTTP error ${res.status}: ${res.statusText}`);
@@ -38,17 +44,32 @@ async function jsonRpc<T = unknown>(
   return data.result as T;
 }
 
+async function fetchWithTimeout(
+  url: string,
+  options: RequestInit,
+  timeoutMs: number,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const origin = req.headers.origin;
-  const host = req.headers['x-forwarded-host'] ?? req.headers.host;
+  const meta = getRequestMeta(req);
+  const origin = meta.origin;
 
   // 1. Zabezpieczenie CORS: Odrzuć, jeśli Origin brakuje albo jest na czarnej liście
-  if (!isAllowedOrigin(origin, host)) {
+  if (!isAllowedOrigin(origin, meta.host, meta.referer)) {
     return res.status(403).json({ error: 'CORS policy violation' });
   }
   if (origin) {
     res.setHeader('Access-Control-Allow-Origin', origin);
   }
+  res.setHeader('Vary', 'Origin');
 
   // Umożliwianie Preflight (OPTIONS)
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -62,16 +83,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).end();
   }
 
-  // 2. Autoryzacja App -> Proxy (Wymagany token)
+  // Auth: signed token required
   const clientToken = req.headers['x-app-auth'];
-  if (!isValidAuthToken(clientToken)) {
-     return res.status(401).json({ error: 'Unauthorized communication' });
+  if (!verifyAuthToken(clientToken, meta)) {
+    return res.status(401).json({ error: 'Unauthorized communication' });
   }
 
-  // 3. Rate Limiting dla podanego IP
-  const forwardedFor = req.headers['x-forwarded-for'];
-  const ip = typeof forwardedFor === 'string' ? forwardedFor : (Array.isArray(forwardedFor) ? forwardedFor[0] : (req.socket?.remoteAddress || '127.0.0.1'));
-  if (!checkRateLimit(ip)) {
+  // Rate limiting per IP
+  const ip = meta.ip || '127.0.0.1';
+  if (!checkRateLimit(ip, 'validators')) {
     return res.status(429).json({ error: 'Too Many Requests' });
   }
 
