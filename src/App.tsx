@@ -24,6 +24,7 @@ import { RefGasCard, AvgTxnCard, StorageFundCard, TotalStakedCard, NetworkApyCar
 import { ErrorBoundary } from './components/UI/ErrorBoundary';
 import { StarsBackground } from './components/UI/StarsBackground';
 import { GlobalLoader } from './components/UI/GlobalLoader';
+import { IotaLogo } from './components/UI/IotaLogo';
 import { useValidators } from './hooks/useValidators';
 
 const queryClient = new QueryClient({
@@ -142,6 +143,20 @@ function AppContent() {
           </motion.div>
         </div>
 
+        {/* ─── Divider ──────────────────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={showAnimations ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
+          transition={{ duration: 0.8, delay: 1.25 }}
+          className="flex items-center justify-center max-w-5xl mx-auto px-4 lg:px-8 my-10"
+        >
+          <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent flex-1" />
+          <div className="mx-6 text-white/20 hover:text-white/40 transition-colors duration-500">
+            <IotaLogo />
+          </div>
+          <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent flex-1" />
+        </motion.div>
+
         {/* ─── Data Table Section ───────────────────────────── */}
         <motion.div initial={{ y: 30, opacity: 0 }} animate={showAnimations ? { y: 0, opacity: 1 } : { y: 30, opacity: 0 }} transition={{ duration: 0.5, delay: 1.3 }} className="px-4 lg:px-8">
           <DataTable />
@@ -154,11 +169,32 @@ function AppContent() {
 import { SettingsProvider } from './context/SettingsContext';
 
 function ChartsPage() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [showAnimations, setShowAnimations] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setIsLoading(false);
+      setTimeout(() => setShowAnimations(true), 100);
+    }, 800);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#000] text-white relative">
+      <AnimatePresence>
+        {isLoading && <GlobalLoader />}
+      </AnimatePresence>
+
       <StarsBackground />
-      <Header showAnimations={true} />
-      <AnalyticsPage />
+      <Header showAnimations={showAnimations} />
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={showAnimations ? { opacity: 1 } : { opacity: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <AnalyticsPage />
+      </motion.div>
     </div>
   );
 }
