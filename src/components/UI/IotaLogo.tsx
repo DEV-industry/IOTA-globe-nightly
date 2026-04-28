@@ -15,7 +15,7 @@ export function IotaLogo({ className = '' }: IotaLogoProps) {
         viewBox="0 0 16000 5370"
         preserveAspectRatio="xMidYMid meet"
         fill="currentColor"
-        className="w-28 h-auto shrink-0 text-white"
+        className={`${className || 'w-28 h-auto'} shrink-0 text-white`}
       >
         <g stroke="none">
           <path d="M3049 5331 c-231 -166 -125 -516 156 -516 166 0 285 119 285 284 0 65 -2 73 -53 166 -9 16 -42 46 -73 67 -56 38 -56 38 -158 38 l-103 0 -54 -39z" />
