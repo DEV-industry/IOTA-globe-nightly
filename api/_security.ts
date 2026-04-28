@@ -3,14 +3,32 @@ export const ALLOWED_ORIGINS = [
   'http://localhost:3000',
 ];
 
-export function isAllowedOrigin(origin: string | undefined): boolean {
-  if (!origin) return false;
-  
-  if (ALLOWED_ORIGINS.includes(origin)) return true;
-  if (origin.endsWith('.vercel.app')) return true; 
-  // if (origin === 'https://twoja-domena.pl') return true;
+export const ALLOWED_HOSTS = [
+  'localhost:5173',
+  'localhost:3000',
+];
 
+function isAllowedHost(host: string | undefined): boolean {
+  if (!host) return false;
+  if (ALLOWED_HOSTS.includes(host)) return true;
+  if (host.endsWith('.vercel.app')) return true;
   return false;
+}
+
+export function isAllowedOrigin(
+  origin: string | undefined,
+  host?: string | string[],
+): boolean {
+  if (origin) {
+    if (ALLOWED_ORIGINS.includes(origin)) return true;
+    if (origin.endsWith('.vercel.app')) return true;
+    // if (origin === 'https://twoja-domena.pl') return true;
+    return false;
+  }
+
+  // Some same-origin requests omit the Origin header; fall back to Host.
+  const resolvedHost = Array.isArray(host) ? host[0] : host;
+  return isAllowedHost(resolvedHost);
 }
 
 // Oczekiwany token z przeglądarki. W środowisku produkcyjnym 
