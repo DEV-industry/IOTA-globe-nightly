@@ -1,17 +1,15 @@
 /**
  * IOTA API service — all external API calls live here.
  *
- * All requests go directly to the public IOTA mainnet JSON-RPC endpoint.
- * No backend proxy is needed — the endpoint has open CORS.
+ * Modified to route through the Vercel Serverless Functions proxy.
  */
 
 import type { ValidatorsResponse } from '../types';
 
 // ─── Config ─────────────────────────────────────────────────────
 
-const IOTA_RPC_URL = 'https://api.mainnet.iota.cafe';
-
-// ─── Internal helpers ───────────────────────────────────────────
+// Use proxy base URL from env if set, otherwise fallback to local /api (proxied in dev via Vite)
+const PROXY_BASE_URL = import.meta.env?.VITE_PROXY_BASE_URL ?? '/api';
 
 interface JsonRpcResponse<T = unknown> {
   jsonrpc: string;
@@ -20,26 +18,38 @@ interface JsonRpcResponse<T = unknown> {
   error?: { code: number; message: string };
 }
 
+// ─── Public API ─────────────────────────────────────────────────
+
 /**
- * Low-level JSON-RPC call directly to the IOTA full node.
+ * Fetches the combined validator + system state data.
+ * This is the primary data source for the globe and sidebar.
+ * Calls our Vercel Serverless Function `/api/validators` which handles caching.
  */
-async function jsonRpc<T = unknown>(
+export async function fetchValidators(): Promise<ValidatorsResponse> {
+  const url = `${PROXY_BASE_URL.replace(/\/$/, '')}/validators`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch validators proxy API: ${res.statusText}`);
+  }
+  return res.json();
+}
+
+/**
+ * Generic JSON-RPC call routed via our `/api/rpc` proxy.
+ */
+export async function rpcCall<T = unknown>(
   method: string,
   params: unknown[] = [],
 ): Promise<T> {
-  const res = await fetch(IOTA_RPC_URL, {
+  const url = `${PROXY_BASE_URL.replace(/\/$/, '')}/rpc`;
+  const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      jsonrpc: '2.0',
-      id: 1,
-      method,
-      params,
-    }),
+    body: JSON.stringify({ method, params }),
   });
 
   if (!res.ok) {
-    throw new Error(`RPC HTTP error ${res.status}: ${res.statusText}`);
+    throw new Error(`Proxy RPC HTTP error ${res.status}: ${res.statusText}`);
   }
 
   const data: JsonRpcResponse<T> = await res.json();
@@ -49,74 +59,4 @@ async function jsonRpc<T = unknown>(
   }
 
   return data.result as T;
-}
-
-// ─── Public API ─────────────────────────────────────────────────
-
-/**
- * Fetches the combined validator + system state data.
- * This is the primary data source for the globe and sidebar.
- *
- * Replicates the logic previously in the Express proxy's
- * GET /api/validators endpoint: fetches system state and APYs
- * in parallel, then merges them into a single response.
- */
-export async function fetchValidators(): Promise<ValidatorsResponse> {
-  // Fire both calls in parallel (same as the old proxy did)
-  const [systemState, apyData] = await Promise.all([
-    jsonRpc<any>('iotax_getLatestIotaSystemState'),
-    jsonRpc<any>('iotax_getValidatorsApy'),
-  ]);
-
-  // Build APY lookup map: address → apy
-  const apyMap = new Map<string, number>();
-  if (apyData?.apys && Array.isArray(apyData.apys)) {
-    for (const entry of apyData.apys) {
-      apyMap.set(entry.address, entry.apy);
-    }
-  }
-
-  // Merge validator data with APYs (identical to the old proxy logic)
-  const validators = (systemState?.activeValidators ?? []).map((v: any) => ({
-    iotaAddress: v.iotaAddress,
-    name: v.name,
-    description: v.description,
-    imageUrl: v.imageUrl,
-    projectUrl: v.projectUrl,
-    netAddress: v.netAddress,
-    p2pAddress: v.p2pAddress,
-    primaryAddress: v.primaryAddress,
-    votingPower: v.votingPower,
-    stakingPoolIotaBalance: v.stakingPoolIotaBalance,
-    commissionRate: v.commissionRate,
-    nextEpochCommissionRate: v.nextEpochCommissionRate,
-    nextEpochStake: v.nextEpochStake,
-    operationCapId: v.operationCapId,
-    stakingPoolId: v.stakingPoolId,
-    apy: apyMap.get(v.iotaAddress) ?? 0,
-  }));
-
-  return {
-    epoch: systemState?.epoch,
-    totalStake: systemState?.totalStake,
-    epochStartTimestampMs: systemState?.epochStartTimestampMs,
-    epochDurationMs: systemState?.epochDurationMs,
-    referenceGasPrice: systemState?.referenceGasPrice,
-    iotaTotalSupply: systemState?.iotaTotalSupply,
-    storageFundTotalObjectStorageRebates: systemState?.storageFundTotalObjectStorageRebates,
-    storageFundNonRefundableBalance: systemState?.storageFundNonRefundableBalance,
-    activeValidatorCount: validators.length,
-    validators,
-  };
-}
-
-/**
- * Generic JSON-RPC call directly to the IOTA mainnet node.
- * Drop-in replacement for the old proxy-based rpcCall.
- */
-export async function rpcCall<T = unknown>(
-  method: string,
-  params: unknown[] = [],
-): Promise<T> {
-  return jsonRpc<T>(method, params);
 }
