@@ -329,7 +329,7 @@ function ValidatorsTable() {
     <table className="w-full min-w-[640px]">
       <thead className="sticky top-0 z-10 bg-[#0a0a0f]/95 backdrop-blur-xl">
         <tr className="border-b border-iota-border/50">
-          <th className="text-center text-[11px] font-medium uppercase tracking-wider text-iota-muted px-6 py-3">
+          <th className="text-left text-[11px] font-medium uppercase tracking-wider text-iota-muted px-6 py-3">
             Name
           </th>
           <th className="text-center text-[11px] font-medium uppercase tracking-wider text-iota-muted px-4 py-3">
@@ -356,8 +356,8 @@ function ValidatorsTable() {
               key={val.iotaAddress}
               className="border-b border-iota-border/30 table-row-hover cursor-pointer group"
             >
-              <td className="text-center px-6 py-3">
-                <div className="flex items-center justify-center gap-3">
+              <td className="text-left px-6 py-3">
+                <div className="flex items-center justify-start gap-3">
                   <img
                     src={val.imageUrl || '/default-avatar.png'}
                     alt={val.name}

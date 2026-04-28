@@ -250,36 +250,38 @@ export function Header({ showAnimations = true }: HeaderProps) {
                     </Link>
                   </nav>
 
-                  {/* Settings */}
-                  <div className="p-2 flex flex-col gap-1">
-                    <div className="px-3 pt-1 pb-0.5">
-                      <span className="text-[11px] font-medium uppercase tracking-wider text-iota-muted">Settings</span>
+                  {/* Settings (Only root path has the globe) */}
+                  {location.pathname !== '/charts' && (
+                    <div className="p-2 flex flex-col gap-1">
+                      <div className="px-3 pt-1 pb-0.5">
+                        <span className="text-[11px] font-medium uppercase tracking-wider text-iota-muted">Settings</span>
+                      </div>
+                      <label className="flex items-center justify-between px-3 py-2.5 hover:bg-iota-hover rounded-md cursor-pointer transition-colors group">
+                        <span className="text-sm text-iota-muted group-hover:text-white transition-colors">Globe Animations</span>
+                        <div className="relative inline-flex items-center cursor-pointer">
+                          <input 
+                            type="checkbox" 
+                            className="sr-only peer" 
+                            checked={settings.enableGlobeAnimations}
+                            onChange={(e) => updateSetting('enableGlobeAnimations', e.target.checked)}
+                          />
+                          <div className="w-9 h-5 bg-black/40 border border-iota-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-iota-muted peer-checked:after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-iota-blue"></div>
+                        </div>
+                      </label>
+                      <label className="flex items-center justify-between px-3 py-2.5 hover:bg-iota-hover rounded-md cursor-pointer transition-colors group">
+                        <span className="text-sm text-iota-muted group-hover:text-white transition-colors">Auto-Rotate Globe</span>
+                        <div className="relative inline-flex items-center cursor-pointer">
+                          <input 
+                            type="checkbox" 
+                            className="sr-only peer" 
+                            checked={settings.autoRotateGlobe}
+                            onChange={(e) => updateSetting('autoRotateGlobe', e.target.checked)}
+                          />
+                          <div className="w-9 h-5 bg-black/40 border border-iota-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-iota-muted peer-checked:after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-iota-blue"></div>
+                        </div>
+                      </label>
                     </div>
-                    <label className="flex items-center justify-between px-3 py-2.5 hover:bg-iota-hover rounded-md cursor-pointer transition-colors group">
-                      <span className="text-sm text-iota-muted group-hover:text-white transition-colors">Globe Animations</span>
-                      <div className="relative inline-flex items-center cursor-pointer">
-                        <input 
-                          type="checkbox" 
-                          className="sr-only peer" 
-                          checked={settings.enableGlobeAnimations}
-                          onChange={(e) => updateSetting('enableGlobeAnimations', e.target.checked)}
-                        />
-                        <div className="w-9 h-5 bg-black/40 border border-iota-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-iota-muted peer-checked:after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-iota-blue"></div>
-                      </div>
-                    </label>
-                    <label className="flex items-center justify-between px-3 py-2.5 hover:bg-iota-hover rounded-md cursor-pointer transition-colors group">
-                      <span className="text-sm text-iota-muted group-hover:text-white transition-colors">Auto-Rotate Globe</span>
-                      <div className="relative inline-flex items-center cursor-pointer">
-                        <input 
-                          type="checkbox" 
-                          className="sr-only peer" 
-                          checked={settings.autoRotateGlobe}
-                          onChange={(e) => updateSetting('autoRotateGlobe', e.target.checked)}
-                        />
-                        <div className="w-9 h-5 bg-black/40 border border-iota-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-iota-muted peer-checked:after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-iota-blue"></div>
-                      </div>
-                    </label>
-                  </div>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
