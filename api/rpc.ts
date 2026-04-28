@@ -2,11 +2,42 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 
 const IOTA_RPC_URL = 'https://api.mainnet.iota.cafe';
 
+const ALLOWED_ORIGINS = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+];
+
+// Metody z API IOTA, z których realnie korzysta aplikacja
+const ALLOWED_METHODS = [
+  'iota_getCheckpoints',
+  'iota_multiGetTransactionBlocks',
+  'iotax_getLatestIotaSystemState',
+  'iotax_getValidatorsApy'
+];
+
+// Sprawdza, czy origin jest na liście dopuszczonych lub czy to domena sub-Vercelowa
+function isAllowedOrigin(origin: string) {
+  if (!origin) return false;
+  if (ALLOWED_ORIGINS.includes(origin)) return true;
+  if (origin.endsWith('.vercel.app')) return true; // Zaufaj domenom Vercela Twojego projektu
+  // W przypadku customowej domeny, dodaj poniżej:
+  // if (origin === 'https://mojadomena.pl') return true;
+  return false;
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // CORS setup
+  const origin = req.headers.origin;
+
+  // Bezpieczny CORS
+  if (origin && isAllowedOrigin(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else if (!origin) {
+    // Brak origin? Zostawiamy dla np. cURL
+  } else {
+    return res.status(403).json({ error: 'CORS policy violation' });
+  }
+
   res.setHeader('Access-Control-Allow-Credentials', 'true');
-  const origin = req.headers.origin || '*';
-  res.setHeader('Access-Control-Allow-Origin', origin);
   res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');
   res.setHeader(
     'Access-Control-Allow-Headers',
@@ -26,6 +57,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     
     if (!method) {
       return res.status(400).json({ error: 'Missing method' });
+    }
+
+    if (!ALLOWED_METHODS.includes(method)) {
+      return res.status(403).json({ error: 'Method Not Allowed via this Proxy' });
     }
 
     const rpcRes = await fetch(IOTA_RPC_URL, {

@@ -37,11 +37,29 @@ async function jsonRpc<T = unknown>(
   return data.result as T;
 }
 
+const ALLOWED_ORIGINS = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+];
+
+// Sprawdza, czy origin jest na liście dopuszczonych lub czy to domena sub-Vercelowa
+function isAllowedOrigin(origin: string) {
+  if (!origin) return false;
+  if (ALLOWED_ORIGINS.includes(origin)) return true;
+  if (origin.endsWith('.vercel.app')) return true; // Zaufaj subdomenom Vercel
+  // if (origin === 'https://twoja-domena.pl') return true;
+  return false;
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // CORS setup
+  const origin = req.headers.origin;
+
+  // Bezpieczny CORS
+  if (origin && isAllowedOrigin(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+
   res.setHeader('Access-Control-Allow-Credentials', 'true');
-  const origin = req.headers.origin || '*';
-  res.setHeader('Access-Control-Allow-Origin', origin);
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
   res.setHeader(
     'Access-Control-Allow-Headers',
