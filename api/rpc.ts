@@ -1,11 +1,7 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
+import { isAllowedOrigin, isValidAuthToken, checkRateLimit } from './_security';
 
 const IOTA_RPC_URL = 'https://api.mainnet.iota.cafe';
-
-const ALLOWED_ORIGINS = [
-  'http://localhost:5173',
-  'http://localhost:3000',
-];
 
 // Metody z API IOTA, z których realnie korzysta aplikacja
 const ALLOWED_METHODS = [
@@ -15,37 +11,39 @@ const ALLOWED_METHODS = [
   'iotax_getValidatorsApy'
 ];
 
-// Sprawdza, czy origin jest na liście dopuszczonych lub czy to domena sub-Vercelowa
-function isAllowedOrigin(origin: string) {
-  if (!origin) return false;
-  if (ALLOWED_ORIGINS.includes(origin)) return true;
-  if (origin.endsWith('.vercel.app')) return true; // Zaufaj domenom Vercela Twojego projektu
-  // W przypadku customowej domeny, dodaj poniżej:
-  // if (origin === 'https://mojadomena.pl') return true;
-  return false;
-}
-
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const origin = req.headers.origin;
 
-  // Bezpieczny CORS
-  if (origin && isAllowedOrigin(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  } else if (!origin) {
-    // Brak origin? Zostawiamy dla np. cURL
-  } else {
+  // 1. Zabezpieczenie CORS: Odrzuć żądanie, jeśli pochodzenie (origin) nie jest autoryzowane / puste
+  if (!isAllowedOrigin(origin)) {
     return res.status(403).json({ error: 'CORS policy violation' });
   }
+  if (origin) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
 
+  // Umożliwiamy Preflight (OPTIONS)
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');
   res.setHeader(
     'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-App-Auth'
   );
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
+  }
+
+  // 2. Autoryzacja App -> Proxy (Wymagany token!)
+  const clientToken = req.headers['x-app-auth'];
+  if (!isValidAuthToken(clientToken)) {
+     return res.status(401).json({ error: 'Unauthorized communication' });
+  }
+
+  // 3. Rate Limiting dla danego IP klienta
+  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+  if (!checkRateLimit(ip as string)) {
+    return res.status(429).json({ error: 'Too Many Requests' });
   }
 
   if (req.method !== 'POST') {
