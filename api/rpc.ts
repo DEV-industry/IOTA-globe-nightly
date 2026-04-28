@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { isAllowedOrigin, isValidAuthToken, checkRateLimit } from './_security';
+import { isAllowedOrigin, isValidAuthToken, checkRateLimit } from './_security.js';
 
 const IOTA_RPC_URL = 'https://api.mainnet.iota.cafe';
 
