@@ -68,8 +68,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // 3. Rate Limiting dla podanego IP
-  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
-  if (!checkRateLimit(ip as string)) {
+  const forwardedFor = req.headers['x-forwarded-for'];
+  const ip = typeof forwardedFor === 'string' ? forwardedFor : (Array.isArray(forwardedFor) ? forwardedFor[0] : (req.socket?.remoteAddress || '127.0.0.1'));
+  if (!checkRateLimit(ip)) {
     return res.status(429).json({ error: 'Too Many Requests' });
   }
 

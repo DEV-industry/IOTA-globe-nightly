@@ -40,9 +40,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
      return res.status(401).json({ error: 'Unauthorized communication' });
   }
 
-  // 3. Rate Limiting dla danego IP klienta
-  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
-  if (!checkRateLimit(ip as string)) {
+  // 3. Rate Limiting dla podanego IP klienta
+  const forwardedFor = req.headers['x-forwarded-for'];
+  const ip = typeof forwardedFor === 'string' ? forwardedFor : (Array.isArray(forwardedFor) ? forwardedFor[0] : (req.socket?.remoteAddress || '127.0.0.1'));
+  if (!checkRateLimit(ip)) {
     return res.status(429).json({ error: 'Too Many Requests' });
   }
 
