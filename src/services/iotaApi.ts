@@ -10,6 +10,7 @@ import type { ValidatorsResponse } from '../types';
 
 // Use proxy base URL from env if set, otherwise fallback to local /api (proxied in dev via Vite)
 const PROXY_BASE_URL = import.meta.env?.VITE_PROXY_BASE_URL ?? '/api';
+const PROXY_API_TOKEN = import.meta.env?.VITE_PROXY_API_TOKEN ?? '';
 
 interface JsonRpcResponse<T = unknown> {
   jsonrpc: string;
@@ -27,7 +28,11 @@ interface JsonRpcResponse<T = unknown> {
  */
 export async function fetchValidators(): Promise<ValidatorsResponse> {
   const url = `${PROXY_BASE_URL.replace(/\/$/, '')}/validators`;
-  const res = await fetch(url);
+  const res = await fetch(url, {
+    headers: {
+      'x-app-auth': PROXY_API_TOKEN
+    }
+  });
   if (!res.ok) {
     throw new Error(`Failed to fetch validators proxy API: ${res.statusText}`);
   }
@@ -44,7 +49,10 @@ export async function rpcCall<T = unknown>(
   const url = `${PROXY_BASE_URL.replace(/\/$/, '')}/rpc`;
   const res = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json',
+      'x-app-auth': PROXY_API_TOKEN 
+    },
     body: JSON.stringify({ method, params }),
   });
 

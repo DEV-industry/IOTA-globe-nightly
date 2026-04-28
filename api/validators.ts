@@ -1,4 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
+import { isAllowedOrigin, isValidAuthToken, checkRateLimit } from './_security';
 
 const IOTA_RPC_URL = 'https://api.mainnet.iota.cafe';
 
@@ -38,18 +39,38 @@ async function jsonRpc<T = unknown>(
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // CORS setup
+  const origin = req.headers.origin;
+
+  // 1. Zabezpieczenie CORS: Odrzuć, jeśli Origin brakuje albo jest na czarnej liście
+  if (!isAllowedOrigin(origin)) {
+    return res.status(403).json({ error: 'CORS policy violation' });
+  }
+  if (origin) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+
+  // Umożliwianie Preflight (OPTIONS)
   res.setHeader('Access-Control-Allow-Credentials', 'true');
-  const origin = req.headers.origin || '*';
-  res.setHeader('Access-Control-Allow-Origin', origin);
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
   res.setHeader(
     'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-App-Auth'
   );
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
+  }
+
+  // 2. Autoryzacja App -> Proxy (Wymagany token)
+  const clientToken = req.headers['x-app-auth'];
+  if (!isValidAuthToken(clientToken)) {
+     return res.status(401).json({ error: 'Unauthorized communication' });
+  }
+
+  // 3. Rate Limiting dla podanego IP
+  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+  if (!checkRateLimit(ip as string)) {
+    return res.status(429).json({ error: 'Too Many Requests' });
   }
 
   if (req.method !== 'GET') {
