@@ -37,6 +37,10 @@ export function HeroGlobe({ validators, onReady }: HeroGlobeProps) {
         onSelectValidator={handleSelectValidator}
         onReady={onReady}
       />
+      
+      {/* Bottom fade overlay */}
+      <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black to-transparent pointer-events-none z-10" />
+
       {/* Optional: Add a subtle overlay for validator count if needed, or leave it pure */}
       <div className="absolute top-4 left-4 z-10 px-3 py-1.5 rounded-full bg-iota-dark/40 backdrop-blur-sm border border-white/5 text-xs text-iota-muted">
         <span className="text-white font-medium">{validators.length}</span> validators

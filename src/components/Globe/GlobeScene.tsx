@@ -72,8 +72,11 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator, onR
       const globe = globeRef.current;
       if (!globe) return;
 
-      // Make the globe appear larger by zooming in (altitude 1.2)
-      globe.pointOfView({ lat: 40, lng: 0, altitude: 1.5 }, 2500);
+      // Choose initial altitude depending on container width so mobile shows whole globe
+      const isMobile = dimensions.width <= 640;
+      // On mobile start more zoomed-out so the globe is fully visible; on desktop keep closer
+      const initialAltitude = isMobile ? 2.8 : 1.5;
+      globe.pointOfView({ lat: 40, lng: 0, altitude: initialAltitude }, 2500);
 
       try {
         const material = (globe as any).globeMaterial();

@@ -25,6 +25,7 @@ import { ErrorBoundary } from './components/UI/ErrorBoundary';
 import { StarsBackground } from './components/UI/StarsBackground';
 import { GlobalLoader } from './components/UI/GlobalLoader';
 import { IotaLogo } from './components/UI/IotaLogo';
+import { Footer } from './components/UI/Footer';
 import { useValidators } from './hooks/useValidators';
 
 const queryClient = new QueryClient({
@@ -162,6 +163,7 @@ function AppContent() {
           <DataTable />
         </motion.div>
       </main>
+      <Footer />
     </div>
   );
 }
@@ -195,6 +197,7 @@ function ChartsPage() {
       >
         <AnalyticsPage />
       </motion.div>
+      <Footer />
     </div>
   );
 }
