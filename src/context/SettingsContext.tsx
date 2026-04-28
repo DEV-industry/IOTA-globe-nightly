@@ -2,6 +2,7 @@ import { createContext, useContext, useState, ReactNode } from 'react';
 
 interface Settings {
   enableGlobeAnimations: boolean;
+  autoRotateGlobe: boolean;
 }
 
 interface SettingsContextType {
@@ -11,6 +12,7 @@ interface SettingsContextType {
 
 const defaultSettings: Settings = {
   enableGlobeAnimations: true,
+  autoRotateGlobe: true,
 };
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
