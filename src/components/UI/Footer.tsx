@@ -1,4 +1,3 @@
-import React from 'react';
 import { IotaLogo } from './IotaLogo';
 
 export function Footer() {
