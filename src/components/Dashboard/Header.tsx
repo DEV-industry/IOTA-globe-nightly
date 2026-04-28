@@ -126,12 +126,12 @@ export function Header({ showAnimations = true }: HeaderProps) {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -10, scale: 0.95 }}
                   transition={{ duration: 0.15, ease: "easeOut" }}
-                  className="absolute right-0 mt-2 w-64 bg-[#111116] border border-iota-border rounded-lg shadow-xl overflow-hidden z-50"
+                  className="absolute right-0 mt-2 w-64 bg-[#050609]/95 backdrop-blur-xl border border-iota-border rounded-lg shadow-xl overflow-hidden z-50"
                 >
                   <div className="px-4 py-3 border-b border-iota-border/50">
                     <h3 className="text-sm font-medium text-white">Settings</h3>
                   </div>
-                  <div className="p-2">
+                  <div className="p-2 flex flex-col gap-1">
                     <label className="flex items-center justify-between px-2 py-2.5 hover:bg-iota-hover rounded-md cursor-pointer transition-colors group">
                       <span className="text-sm text-iota-muted group-hover:text-white transition-colors">Globe Animations</span>
                       <div className="relative inline-flex items-center cursor-pointer">
@@ -141,7 +141,20 @@ export function Header({ showAnimations = true }: HeaderProps) {
                           checked={settings.enableGlobeAnimations}
                           onChange={(e) => updateSetting('enableGlobeAnimations', e.target.checked)}
                         />
-                        <div className="w-9 h-5 bg-iota-card border border-iota-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-iota-muted peer-checked:after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-iota-blue"></div>
+                        <div className="w-9 h-5 bg-black/40 border border-iota-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-iota-muted peer-checked:after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-iota-blue"></div>
+                      </div>
+                    </label>
+
+                    <label className="flex items-center justify-between px-2 py-2.5 hover:bg-iota-hover rounded-md cursor-pointer transition-colors group">
+                      <span className="text-sm text-iota-muted group-hover:text-white transition-colors">Auto-Rotate Globe</span>
+                      <div className="relative inline-flex items-center cursor-pointer">
+                        <input 
+                          type="checkbox" 
+                          className="sr-only peer" 
+                          checked={settings.autoRotateGlobe}
+                          onChange={(e) => updateSetting('autoRotateGlobe', e.target.checked)}
+                        />
+                        <div className="w-9 h-5 bg-black/40 border border-iota-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-iota-muted peer-checked:after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-iota-blue"></div>
                       </div>
                     </label>
                   </div>

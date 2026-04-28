@@ -32,8 +32,21 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator, onR
   const isHoveringPointRef = useRef(false);
   const dragStartPosRef = useRef({ x: 0, y: 0 });
   const wasDragRef = useRef(false);
-
   const { settings } = useSettings();
+  const autoRotateGlobeRef = useRef(settings.autoRotateGlobe);
+
+  useEffect(() => {
+    autoRotateGlobeRef.current = settings.autoRotateGlobe;
+    
+    // Update immediately if no interaction is currently suppressing rotation
+    const globe = globeRef.current;
+    if (globe) {
+      const controls = globe.controls();
+      if (controls && !isHoveringPointRef.current && !interactionTimerRef.current) {
+        controls.autoRotate = settings.autoRotateGlobe;
+      }
+    }
+  }, [settings.autoRotateGlobe]);
 
   // Geocode validators
   const geoValidators = useGeocode(validators);
@@ -78,8 +91,8 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator, onR
         controls.minDistance = 100; // Lowered min distance to allow deeper zoom
         controls.maxDistance = 500;
 
-        // Apply auto rotation permanently
-        controls.autoRotate = true;
+        // Apply auto rotation based on settings initially
+        controls.autoRotate = autoRotateGlobeRef.current;
         controls.autoRotateSpeed = -2.5; // Negative value rotates to the right
 
         // Stop auto-rotate when interacting, resume after delay when interaction ends
@@ -87,21 +100,24 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator, onR
           controls.autoRotate = false;
           if (interactionTimerRef.current) {
             clearTimeout(interactionTimerRef.current);
+            interactionTimerRef.current = null;
           }
         });
 
         controls.addEventListener('end', () => {
           if (interactionTimerRef.current) {
             clearTimeout(interactionTimerRef.current);
+            interactionTimerRef.current = null;
           }
           if (!isHoveringPointRef.current) {
             if (wasDragRef.current) {
               interactionTimerRef.current = setTimeout(() => {
-                controls.autoRotate = true;
+                controls.autoRotate = autoRotateGlobeRef.current;
+                interactionTimerRef.current = null;
               }, 2000);
             } else {
               // Just a click, resume immediately
-              controls.autoRotate = true;
+              controls.autoRotate = autoRotateGlobeRef.current;
             }
           }
           wasDragRef.current = false;
@@ -150,7 +166,8 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator, onR
         clearTimeout(interactionTimerRef.current);
       }
       interactionTimerRef.current = setTimeout(() => {
-        controls.autoRotate = true;
+        controls.autoRotate = autoRotateGlobeRef.current;
+        interactionTimerRef.current = null;
       }, 2000);
     }
   }, []);
