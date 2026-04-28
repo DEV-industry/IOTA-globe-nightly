@@ -59,54 +59,58 @@ export function Header({ showAnimations = true }: HeaderProps) {
       }`}
     >
       <div className="flex items-center justify-between px-4 lg:px-6 h-16 max-w-[1600px] mx-auto">
-        {/* Logo */}
-        <div className="shrink-0">
-          <IotaLogo />
+        {/* Left Section (Logo + Nav) */}
+        <div className="flex items-center flex-1 min-w-0">
+          <div className="shrink-0">
+            <IotaLogo />
+          </div>
+
+          {/* Nav Links */}
+          <nav className="hidden sm:flex items-center gap-1 ml-4">
+            <Link
+              to="/"
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                location.pathname === '/'
+                  ? 'text-white bg-white/[0.06]'
+                  : 'text-iota-muted hover:text-white'
+              }`}
+            >
+              Dashboard
+            </Link>
+            <Link
+              to="/charts"
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                location.pathname === '/charts'
+                  ? 'text-white bg-white/[0.06]'
+                  : 'text-iota-muted hover:text-white'
+              }`}
+            >
+              Charts
+            </Link>
+          </nav>
         </div>
 
-        {/* Nav Links */}
-        <nav className="hidden sm:flex items-center gap-1 ml-4">
-          <Link
-            to="/"
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              location.pathname === '/'
-                ? 'text-white bg-white/[0.06]'
-                : 'text-iota-muted hover:text-white'
-            }`}
-          >
-            Dashboard
-          </Link>
-          <Link
-            to="/charts"
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              location.pathname === '/charts'
-                ? 'text-white bg-white/[0.06]'
-                : 'text-iota-muted hover:text-white'
-            }`}
-          >
-            Charts
-          </Link>
-        </nav>
-
-        {/* Search Bar (centered) */}
-        <div className="hidden sm:flex flex-1 max-w-xl mx-6 lg:mx-12">
-          <SearchBar />
+        {/* Search Bar (perfectly centered) */}
+        <div className="hidden sm:flex justify-center flex-[2] px-4 min-w-0">
+          <div className="w-full max-w-xl">
+            <SearchBar />
+          </div>
         </div>
 
         {/* Right Actions */}
-        <div className="shrink-0 flex items-center gap-3">
+        <div className="flex items-center justify-end gap-3 flex-1 min-w-0">
           {/* Network Selector */}
           <div
             id="network-selector"
             className="flex items-center gap-2 px-4 py-2 bg-iota-card/60 border border-iota-border rounded-lg
-                       text-sm text-white"
+                       text-sm text-white shrink-0"
           >
             <span className="w-2 h-2 rounded-full bg-emerald-400" />
             <span className="font-medium">Mainnet</span>
           </div>
 
           {/* Settings Menu */}
-          <div className="relative" ref={settingsRef}>
+          <div className="relative shrink-0" ref={settingsRef}>
             <button
               onClick={() => setIsSettingsOpen(!isSettingsOpen)}
               className="flex items-center justify-center w-10 h-10 bg-iota-card/60 border border-iota-border rounded-lg

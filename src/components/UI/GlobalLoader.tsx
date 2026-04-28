@@ -7,7 +7,7 @@ export function GlobalLoader() {
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.8, ease: "easeInOut" }}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0a0a0f]"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-[#000000]"
     >
       <div className="animate-pulse scale-150">
         <IotaLogo />
