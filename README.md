@@ -85,42 +85,42 @@
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    Frontend (Vite + React)               │
-│                                                          │
+│                    Frontend (Vite + React)              │
+│                                                         │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐               │
-│  │  Globe    │  │ Dashboard│  │ Analytics│               │
-│  │  Scene    │  │  Cards   │  │  Charts  │               │
+│  │  Globe   │  │ Dashboard│  │ Analytics│               │
+│  │  Scene   │  │  Cards   │  │  Charts  │               │
 │  └────┬─────┘  └────┬─────┘  └────┬─────┘               │
-│       │              │              │                     │
-│       └──────────────┼──────────────┘                     │
-│                      │                                    │
-│              ┌───────┴───────┐                            │
-│              │  TanStack     │                            │
-│              │  React Query  │                            │
-│              └───────┬───────┘                            │
-│                      │                                    │
-│              ┌───────┴───────┐                            │
-│              │  iotaApi.ts   │  (authorized fetch client) │
-│              └───────┬───────┘                            │
+│       │              │              │                   │
+│       └──────────────┼──────────────┘                   │
+│                      │                                  │
+│              ┌───────┴───────┐                          │
+│              │  TanStack     │                          │
+│              │  React Query  │                          │
+│              └───────┬───────┘                          │
+│                      │                                  │
+│              ┌───────┴───────┐                          │
+│              │  iotaApi.ts   │ (authorized fetch client)│
+│              └───────┬───────┘                          │
 └──────────────────────┼──────────────────────────────────┘
                        │  /api/*
                        ▼
 ┌──────────────────────────────────────────────────────────┐
-│             Vercel Serverless Functions (api/)            │
+│             Vercel Serverless Functions (api/)           │
 │                                                          │
-│  ┌──────────┐  ┌──────────┐  ┌───────────────┐          │
-│  │ /api/auth│  │ /api/rpc │  │/api/validators│          │
-│  │ (JWT)    │  │ (proxy)  │  │  (merged data)│          │
-│  └────┬─────┘  └────┬─────┘  └───────┬───────┘          │
-│       │              │                │                   │
-│       └──────────────┼────────────────┘                   │
-│                      │                                    │
-│              ┌───────┴───────┐                            │
-│              │  _security.ts │                            │
-│              │  CORS · Rate  │                            │
-│              │  Limit · HMAC │                            │
-│              └───────────────┘                            │
-└──────────────────────┼──────────────────────────────────┘
+│  ┌──────────┐  ┌──────────┐  ┌───────────────┐           │
+│  │ /api/auth│  │ /api/rpc │  │/api/validators│           │
+│  │ (JWT)    │  │ (proxy)  │  │  (merged data)│           │
+│  └────┬─────┘  └────┬─────┘  └───────┬───────┘           │
+│       │              │                │                  │
+│       └──────────────┼────────────────┘                  │
+│                      │                                   │
+│              ┌───────┴───────┐                           │
+│              │  _security.ts │                           │
+│              │  CORS · Rate  │                           │
+│              │  Limit · HMAC │                           │
+│              └───────────────┘                           │
+└──────────────────────┼───────────────────────────────────┘
                        │
                        ▼
             ┌──────────────────┐
@@ -404,8 +404,3 @@ Validators are plotted on the globe using a 3-tier geocoding strategy:
 
 Built as a recruitment project for **Nightly** 🌙
 
----
-
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
