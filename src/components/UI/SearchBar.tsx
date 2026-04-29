@@ -8,6 +8,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import type { ValidatorsResponse } from '../../types';
 
 /* ─── Types ───────────────────────────────────────────────── */
@@ -178,6 +179,7 @@ function matchValidators(
 
 export function SearchBar() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   /* ── state ─────────────────────────────── */
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
@@ -288,9 +290,15 @@ export function SearchBar() {
 
   /* ── selection handler ────────────────── */
   const handleSelect = (suggestion: SearchSuggestion) => {
-    const path = EXPLORER_PATHS[suggestion.type];
-    const url = `${EXPLORER_BASE}/${path}/${encodeURIComponent(suggestion.value)}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
+    if (suggestion.type === 'Validator') {
+      // Navigate to globe and focus the validator
+      navigate('/', { state: { selectValidator: suggestion.value } });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      const path = EXPLORER_PATHS[suggestion.type];
+      const url = `${EXPLORER_BASE}/${path}/${encodeURIComponent(suggestion.value)}`;
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
     setQuery(suggestion.label);
     setIsOpen(false);
   };
