@@ -78,7 +78,7 @@ export function ValidatorModal({ validator, onClose }: ValidatorModalProps) {
             <div className="text-xs text-iota-label">Commission</div>
           </div>
           <div className="flex flex-col gap-1 p-3 bg-white/[0.03] rounded-xl border border-white/5">
-            <div className="text-xl font-semibold text-white tabular-nums">{Number(validator.votingPower).toLocaleString()}</div>
+            <div className="text-xl font-semibold text-white tabular-nums">{(Number(validator.votingPower) / 100).toFixed(2)}%</div>
             <div className="text-xs text-iota-label">Voting Power</div>
           </div>
         </div>

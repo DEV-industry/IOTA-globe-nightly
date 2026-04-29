@@ -14,7 +14,7 @@ import { useRecentTransactions } from '../../hooks/useRecentTransactions';
 import type { TransactionDetail } from '../../hooks/useRecentTransactions';
 import { useCheckpoints } from '../../hooks/useCheckpoints';
 import { useValidators } from '../../hooks/useValidators';
-import { truncateAddress, formatStakeCompact } from '../../utils/formatters';
+import { truncateAddress, formatStakeCompact, formatApy, formatCommission } from '../../utils/formatters';
 import type { DataTableTab, Checkpoint } from '../../types';
 
 // ─── Helpers ────────────────────────────────────────────────────
@@ -383,12 +383,12 @@ function ValidatorsTable() {
               </td>
               <td className="text-center px-4 py-3">
                 <span className="text-sm text-emerald-400 tabular-nums">
-                  {val.apy > 0 ? `${val.apy.toFixed(2)}%` : '--'}
+                  {val.apy > 0 ? formatApy(val.apy) : '--'}
                 </span>
               </td>
               <td className="text-center px-6 py-3">
                 <span className="text-sm text-iota-muted tabular-nums">
-                  {(Number(val.commissionRate) / 100).toFixed(2)}%
+                  {formatCommission(val.commissionRate)}
                 </span>
               </td>
             </tr>
