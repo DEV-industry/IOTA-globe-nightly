@@ -2,7 +2,7 @@
   <img src="public/favicon.png" alt="IOTA Globe" width="80" />
 </p>
 
-<h1 align="center">🌐 IOTA Globe Explorer</h1>
+<h1 align="center">IOTA Globe Explorer</h1>
 
 <p align="center">
   <strong>Interactive 3D Validator Map & Real-Time Network Dashboard for the IOTA Blockchain</strong>
@@ -14,7 +14,6 @@
   <img src="https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white" alt="Vite 6" />
   <img src="https://img.shields.io/badge/Three.js-0.184-000000?logo=three.js&logoColor=white" alt="Three.js" />
   <img src="https://img.shields.io/badge/Vercel-Serverless-000000?logo=vercel&logoColor=white" alt="Vercel" />
-  <img src="https://img.shields.io/badge/License-MIT-green" alt="License" />
 </p>
 
 ---
