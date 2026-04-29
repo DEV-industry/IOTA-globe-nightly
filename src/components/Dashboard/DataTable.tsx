@@ -14,7 +14,7 @@ import { useRecentTransactions } from '../../hooks/useRecentTransactions';
 import type { TransactionDetail } from '../../hooks/useRecentTransactions';
 import { useCheckpoints } from '../../hooks/useCheckpoints';
 import { useValidators } from '../../hooks/useValidators';
-import { truncateAddress, formatStakeCompact } from '../../utils/formatters';
+import { truncateAddress, formatStakeCompact, formatApy, formatCommission } from '../../utils/formatters';
 import type { DataTableTab, Checkpoint } from '../../types';
 
 // ─── Helpers ────────────────────────────────────────────────────
@@ -316,6 +316,10 @@ function CheckpointsTable() {
 
 // ─── Validators Tab ─────────────────────────────────────────────────
 
+import { AnimatePresence } from 'framer-motion';
+import { ValidatorModal } from '../Globe/ValidatorModal';
+import type { Validator } from '../../types';
+
 function ValidatorsTable() {
   const {
     data,
@@ -323,78 +327,92 @@ function ValidatorsTable() {
     isError,
   } = useValidators();
 
+  const [selectedValidator, setSelectedValidator] = useState<Validator | null>(null);
+
   const validators = data?.validators || [];
 
   return (
-    <table className="w-full min-w-[640px]">
-      <thead className="sticky top-0 z-10 bg-[#0a0a0f]/95 backdrop-blur-xl">
-        <tr className="border-b border-iota-border/50">
-          <th className="text-left text-[11px] font-medium uppercase tracking-wider text-iota-muted px-6 py-3">
-            Name
-          </th>
-          <th className="text-center text-[11px] font-medium uppercase tracking-wider text-iota-muted px-4 py-3">
-            Stake
-          </th>
-          <th className="text-center text-[11px] font-medium uppercase tracking-wider text-iota-muted px-4 py-3">
-            Voting Power
-          </th>
-          <th className="text-center text-[11px] font-medium uppercase tracking-wider text-iota-muted px-4 py-3">
-            APY
-          </th>
-          <th className="text-center text-[11px] font-medium uppercase tracking-wider text-iota-muted px-6 py-3">
-            Commission
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {isLoading && <SkeletonRows />}
-        {isError && <ErrorRow message="Failed to load validators data" />}
-        {!isLoading &&
-          !isError &&
-          validators.map((val) => (
-            <tr
-              key={val.iotaAddress}
-              className="border-b border-iota-border/30 table-row-hover cursor-pointer group"
-            >
-              <td className="text-left px-6 py-3">
-                <div className="flex items-center justify-start gap-3">
-                  <img
-                    src={val.imageUrl || '/default-avatar.png'}
-                    alt={val.name}
-                    className="w-6 h-6 rounded-full object-cover bg-iota-border"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/default-avatar.png';
-                    }}
-                  />
-                  <span className="text-sm text-white font-medium group-hover:text-iota-cyan transition-colors">
-                    {val.name}
+    <>
+      <table className="w-full min-w-[640px]">
+        <thead className="sticky top-0 z-10 bg-[#0a0a0f]/95 backdrop-blur-xl">
+          <tr className="border-b border-iota-border/50">
+            <th className="text-left text-[11px] font-medium uppercase tracking-wider text-iota-muted px-6 py-3">
+              Name
+            </th>
+            <th className="text-center text-[11px] font-medium uppercase tracking-wider text-iota-muted px-4 py-3">
+              Stake
+            </th>
+            <th className="text-center text-[11px] font-medium uppercase tracking-wider text-iota-muted px-4 py-3">
+              Voting Power
+            </th>
+            <th className="text-center text-[11px] font-medium uppercase tracking-wider text-iota-muted px-4 py-3">
+              APY
+            </th>
+            <th className="text-center text-[11px] font-medium uppercase tracking-wider text-iota-muted px-6 py-3">
+              Commission
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {isLoading && <SkeletonRows />}
+          {isError && <ErrorRow message="Failed to load validators data" />}
+          {!isLoading &&
+            !isError &&
+            validators.map((val) => (
+              <tr
+                key={val.iotaAddress}
+                onClick={() => setSelectedValidator(val)}
+                className="border-b border-iota-border/30 table-row-hover cursor-pointer group"
+              >
+                <td className="text-left px-6 py-3">
+                  <div className="flex items-center justify-start gap-3">
+                    <img
+                      src={val.imageUrl || '/default-avatar.png'}
+                      alt={val.name}
+                      className="w-6 h-6 rounded-full object-cover bg-iota-border"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/default-avatar.png';
+                      }}
+                    />
+                    <span className="text-sm text-white font-medium group-hover:text-iota-cyan transition-colors">
+                      {val.name}
+                    </span>
+                  </div>
+                </td>
+                <td className="text-center px-4 py-3">
+                  <span className="text-sm text-white tabular-nums">
+                    {formatStakeCompact(val.stakingPoolIotaBalance)} IOTA
                   </span>
-                </div>
-              </td>
-              <td className="text-center px-4 py-3">
-                <span className="text-sm text-white tabular-nums">
-                  {formatStakeCompact(val.stakingPoolIotaBalance)} IOTA
-                </span>
-              </td>
-              <td className="text-center px-4 py-3">
-                <span className="text-sm text-white tabular-nums">
-                  {(Number(val.votingPower) / 100).toFixed(2)}%
-                </span>
-              </td>
-              <td className="text-center px-4 py-3">
-                <span className="text-sm text-emerald-400 tabular-nums">
-                  {val.apy > 0 ? `${val.apy.toFixed(2)}%` : '--'}
-                </span>
-              </td>
-              <td className="text-center px-6 py-3">
-                <span className="text-sm text-iota-muted tabular-nums">
-                  {(Number(val.commissionRate) / 100).toFixed(2)}%
-                </span>
-              </td>
-            </tr>
-          ))}
-      </tbody>
-    </table>
+                </td>
+                <td className="text-center px-4 py-3">
+                  <span className="text-sm text-white tabular-nums">
+                    {(Number(val.votingPower) / 100).toFixed(2)}%
+                  </span>
+                </td>
+                <td className="text-center px-4 py-3">
+                  <span className="text-sm text-emerald-400 tabular-nums">
+                    {val.apy > 0 ? formatApy(val.apy) : '--'}
+                  </span>
+                </td>
+                <td className="text-center px-6 py-3">
+                  <span className="text-sm text-iota-muted tabular-nums">
+                    {formatCommission(val.commissionRate)}
+                  </span>
+                </td>
+              </tr>
+            ))}
+        </tbody>
+      </table>
+
+      <AnimatePresence>
+        {selectedValidator && (
+          <ValidatorModal
+            validator={selectedValidator}
+            onClose={() => setSelectedValidator(null)}
+          />
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 

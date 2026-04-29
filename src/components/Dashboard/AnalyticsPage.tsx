@@ -189,6 +189,9 @@ export function AnalyticsPage() {
     );
   }, []);
 
+  const hasFeeData = analyticsData.length > 0 && analyticsData.some(d => d.baseFee > 0 || d.priorityFee > 0);
+  const hasMedianFeeData = analyticsData.length > 0 && analyticsData.some(d => d.medianBase > 0 || d.medianPriority > 0);
+
   return (
     <div className="min-h-screen bg-[#000] text-white">
       <div className="max-w-[1400px] mx-auto pt-24 pb-12 px-4 lg:px-8">
@@ -379,6 +382,16 @@ export function AnalyticsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 relative">
           <GlassCard className="opacity-0 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
             {analyticsLoading && <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/50 backdrop-blur-sm rounded-xl"><span className="text-sm text-iota-muted">Loading...</span></div>}
+            
+            {!analyticsLoading && !hasFeeData && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-10">
+                 <span className="text-sm font-bold text-white/20 mb-1">No Fee Data Found</span>
+                 <span className="text-xs text-white/10 px-6 text-center max-w-xs">
+                   The network appears to be idle or only processing free system transactions.
+                 </span>
+              </div>
+            )}
+            
             <ChartLabel title="Transaction Fees" sub="total per block (IOTA)" legend={[{ label: 'Base Fee', color: '#4b5563' }, { label: 'Priority Fee', color: '#ffffff' }]} />
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={analyticsData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
@@ -394,6 +407,16 @@ export function AnalyticsPage() {
 
           <GlassCard className="opacity-0 animate-fade-in-up" style={{ animationDelay: '0.7s' }}>
             {analyticsLoading && <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/50 backdrop-blur-sm rounded-xl"><span className="text-sm text-iota-muted">Loading...</span></div>}
+            
+            {!analyticsLoading && !hasMedianFeeData && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-10">
+                 <span className="text-sm font-bold text-white/20 mb-1">No Median Fees</span>
+                 <span className="text-xs text-white/10 px-6 text-center max-w-xs">
+                   There are currently no transaction fees to calculate a median from.
+                 </span>
+              </div>
+            )}
+
             <ChartLabel title="Median Fees" sub="per block (IOTA)" legend={[{ label: 'Base Fee', color: '#4b5563' }, { label: 'Priority Fee', color: '#ffffff' }]} />
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={analyticsData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>

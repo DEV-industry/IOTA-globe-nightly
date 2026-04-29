@@ -79,9 +79,9 @@ export function Header({ showAnimations = true }: HeaderProps) {
       <div className="flex items-center justify-between px-4 lg:px-6 h-16 max-w-[1600px] mx-auto">
         {/* Left Section (Logo + Nav) */}
         <div className="flex items-center flex-1 min-w-0">
-          <div className="shrink-0">
+          <Link to="/" className="shrink-0 block hover:opacity-80 transition-opacity">
             <IotaLogo />
-          </div>
+          </Link>
 
           {/* Nav Links */}
           <nav className="hidden sm:flex items-center gap-1 ml-4">
