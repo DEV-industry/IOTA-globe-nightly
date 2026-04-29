@@ -4,8 +4,9 @@
  * Sits at the very top of the dashboard.
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { GlobeScene } from '../Globe/GlobeScene';
 import { ValidatorModal } from '../Globe/ValidatorModal';
 import type { Validator } from '../../types';
@@ -17,17 +18,47 @@ interface HeroGlobeProps {
 
 export function HeroGlobe({ validators, onReady }: HeroGlobeProps) {
   const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
+  const [showModalFor, setShowModalFor] = useState<string | null>(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (location.state && (location.state as any).selectValidator) {
+      const address = (location.state as any).selectValidator;
+      setSelectedAddress(address);
+      setShowModalFor(null); // hide immediately
+      
+      // Delay the modal to let globe animation finish
+      setTimeout(() => {
+        setShowModalFor(address);
+      }, 1200);
+
+      // Clear the state after reading it so we don't re-trigger on un-related renders
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, navigate]);
 
   const handleSelectValidator = (validator: Validator) => {
-    setSelectedAddress(
-      validator.iotaAddress === selectedAddress ? null : validator.iotaAddress,
-    );
+    const isDeselecting = validator.iotaAddress === selectedAddress;
+    
+    if (isDeselecting) {
+      setSelectedAddress(null);
+      setShowModalFor(null);
+    } else {
+      setSelectedAddress(validator.iotaAddress);
+      setShowModalFor(null);
+      
+      // Delay showing the modal
+      setTimeout(() => {
+        setShowModalFor(validator.iotaAddress);
+      }, 1200);
+    }
   };
 
   const selectedValidator = useMemo(() => {
-    if (!selectedAddress) return null;
-    return validators.find(v => v.iotaAddress === selectedAddress) || null;
-  }, [selectedAddress, validators]);
+    if (!showModalFor) return null;
+    return validators.find(v => v.iotaAddress === showModalFor) || null;
+  }, [showModalFor, validators]);
 
   return (
     <div className="w-full relative animate-fade-in h-[70vh]">
@@ -50,7 +81,10 @@ export function HeroGlobe({ validators, onReady }: HeroGlobeProps) {
         {selectedValidator && (
           <ValidatorModal
             validator={selectedValidator}
-            onClose={() => setSelectedAddress(null)}
+            onClose={() => {
+              setSelectedAddress(null);
+              setShowModalFor(null);
+            }}
           />
         )}
       </AnimatePresence>

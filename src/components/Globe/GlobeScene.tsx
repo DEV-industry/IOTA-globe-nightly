@@ -63,6 +63,11 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator, onR
     return () => obs.disconnect();
   }, []);
 
+  const selectedAddressRef = useRef(selectedAddress);
+  useEffect(() => {
+    selectedAddressRef.current = selectedAddress;
+  }, [selectedAddress]);
+
   // Configure globe once it's rendered
   useEffect(() => {
     if (dimensions.width === 0) return;
@@ -95,7 +100,7 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator, onR
         controls.maxDistance = 500;
 
         // Apply auto rotation based on settings initially
-        controls.autoRotate = autoRotateGlobeRef.current;
+        controls.autoRotate = selectedAddressRef.current ? false : autoRotateGlobeRef.current;
         controls.autoRotateSpeed = -2.5; // Negative value rotates to the right
 
         // Stop auto-rotate when interacting, resume after delay when interaction ends
@@ -115,12 +120,12 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator, onR
           if (!isHoveringPointRef.current) {
             if (wasDragRef.current) {
               interactionTimerRef.current = setTimeout(() => {
-                controls.autoRotate = autoRotateGlobeRef.current;
+                controls.autoRotate = selectedAddressRef.current ? false : autoRotateGlobeRef.current;
                 interactionTimerRef.current = null;
               }, 2000);
             } else {
-              // Just a click, resume immediately
-              controls.autoRotate = autoRotateGlobeRef.current;
+              // Just a click, resume immediately if no validator is selected
+              controls.autoRotate = selectedAddressRef.current ? false : autoRotateGlobeRef.current;
             }
           }
           wasDragRef.current = false;
@@ -131,12 +136,29 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator, onR
     return () => clearTimeout(timer);
   }, [dimensions.width]);
 
-  // Fly to selected validator
+  // Fly to selected validator and pause rotation
   useEffect(() => {
-    if (!selectedAddress || !globeRef.current) return;
+    const globe = globeRef.current;
+    if (!globe) return;
+    const controls = globe.controls();
+
+    if (!selectedAddress) {
+      if (controls && !isHoveringPointRef.current && !interactionTimerRef.current) {
+        controls.autoRotate = autoRotateGlobeRef.current;
+      }
+      return;
+    }
+
     const v = geoValidators.find((g) => g.iotaAddress === selectedAddress);
     if (v) {
-      globeRef.current.pointOfView({ lat: v.lat, lng: v.lng, altitude: 1.5 }, 1000);
+      globe.pointOfView({ lat: v.lat, lng: v.lng, altitude: 0.8 }, 1000);
+      if (controls) {
+        controls.autoRotate = false;
+        if (interactionTimerRef.current) {
+          clearTimeout(interactionTimerRef.current);
+          interactionTimerRef.current = null;
+        }
+      }
     }
   }, [selectedAddress, geoValidators]);
 
@@ -144,7 +166,7 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator, onR
     (point: object) => {
       const v = point as ValidatorWithGeo;
       onSelectValidator(v);
-      globeRef.current?.pointOfView({ lat: v.lat, lng: v.lng, altitude: 1.5 }, 1000);
+      globeRef.current?.pointOfView({ lat: v.lat, lng: v.lng, altitude: 0.8 }, 1000);
     },
     [onSelectValidator],
   );
@@ -169,7 +191,7 @@ export function GlobeScene({ validators, selectedAddress, onSelectValidator, onR
         clearTimeout(interactionTimerRef.current);
       }
       interactionTimerRef.current = setTimeout(() => {
-        controls.autoRotate = autoRotateGlobeRef.current;
+        controls.autoRotate = selectedAddressRef.current ? false : autoRotateGlobeRef.current;
         interactionTimerRef.current = null;
       }, 2000);
     }
