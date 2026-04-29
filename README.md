@@ -23,7 +23,7 @@
 **IOTA Globe** is a premium, real-time blockchain explorer dashboard that visualizes the IOTA mainnet validator network on an interactive 3D globe. The application fetches live data directly from the IOTA JSON-RPC endpoint through a secure serverless proxy, presenting network activity, transaction blocks, epoch progress, staking economics, and validator geographic distribution — all in a sleek, dark-themed interface with smooth animations.
 
 <p align="center">
-  <img src="IOTA-presentation.gif" alt="IOTA Globe Explorer — Live Demo" width="100%" />
+  <img src="docs/IOTA-presentation.gif" alt="IOTA Globe Explorer — Live Demo" width="100%" />
 </p>
 
 ---
