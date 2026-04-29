@@ -21,7 +21,7 @@ export function ValidatorModal({ validator, onClose }: ValidatorModalProps) {
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.95, opacity: 0, y: 20 }}
         transition={{ type: "spring", duration: 0.5, bounce: 0.3 }}
-        className="relative w-full max-w-lg bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-2xl"
+        className="relative w-full max-w-lg bg-[#050609] border border-white/10 rounded-2xl p-6 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -45,7 +45,7 @@ export function ValidatorModal({ validator, onClose }: ValidatorModalProps) {
             <h2 className="text-2xl font-bold text-white truncate">{validator.name}</h2>
             <div className="flex items-center gap-2 mt-1">
               <span className="text-sm text-iota-muted font-mono">{truncateAddress(validator.iotaAddress, 8)}</span>
-              <button 
+              <button
                 onClick={() => navigator.clipboard.writeText(validator.iotaAddress)}
                 className="text-iota-muted hover:text-white transition-colors"
                 title="Copy Address"
@@ -85,9 +85,9 @@ export function ValidatorModal({ validator, onClose }: ValidatorModalProps) {
 
         {validator.projectUrl && (
           <div className="mt-4 pt-4 border-t border-white/10">
-            <a 
-              href={validator.projectUrl} 
-              target="_blank" 
+            <a
+              href={validator.projectUrl}
+              target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl font-medium transition-colors"
             >
